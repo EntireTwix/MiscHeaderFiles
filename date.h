@@ -7,13 +7,6 @@
 
 using namespace std;
 
-//static (is class wide, rather then individual instance)
-//const (doesnt modify members)
-//noexcept (doesnt throw exception)
-//explicit (non implicit)
-//default (= { })
-//delete (un-usable)
-
 namespace date {
     unsigned char MonthLength(unsigned char month, unsigned short int year) {
         if (month > 12) throw new exception("month cant be bigger then 12");
