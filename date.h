@@ -8,6 +8,7 @@
 using namespace std;
 
 namespace date {
+	//finds month length of given month and year
 	unsigned char MonthLength(unsigned char month, unsigned short int year) 
 	{
 		if (month > 12) throw new exception("month cant be bigger then 12");
@@ -50,11 +51,15 @@ namespace date {
 		unsigned short int _year = 0;
 	public:
 		Date() = default;
-		Date(unsigned char d, unsigned char m, unsigned short int y = 0) : _day(d), _month(m), _year(y)															//default
+
+		//default
+		Date(unsigned char d, unsigned char m, unsigned short int y = 0) : _day(d), _month(m), _year(y)															
 		{
 			if (((d < 0) || (m < 1) || (y < 0)) || ((d > date::MonthLength(m, y)) || (m > 12))) throw new exception("invalid parameters");
 		}
-		explicit Date(unsigned int a)																															//constructor with number of days
+
+		//constructor with number of days
+		explicit Date(unsigned int a)																															
 		{
 			if (a < 0) throw new exception("date can not be negative");
 			for (int i = 0; i < a; ++i) {
@@ -87,7 +92,9 @@ namespace date {
 				}
 			}
 		}
-		Date& operator=(unsigned int a)																															//constructor with number of days
+
+		//constructor with number of days
+		Date& operator=(unsigned int a)																															
 		{
 			if (a < 0) throw new exception("date can not be negative");
 			_day = 0;
@@ -124,7 +131,9 @@ namespace date {
 			}
 			return *this;
 		}
-		operator unsigned int() const noexcept																														//days total conversion
+
+		//days total conversion
+		operator unsigned int() const noexcept																														
 		{
 			unsigned int sum = 0;
 			unsigned char d = _day;
@@ -160,16 +169,22 @@ namespace date {
 			}
 			return sum;
 		}
-		static Date CurrentDate() noexcept																															//gets current date function 
+
+		//gets current date function
+		static Date CurrentDate() noexcept																															 
 		{
 			Date res(((time(NULL) + 57600) / 86400) + 719543); //hopefully fixed
 			return res;
 		}
-		friend ostream& operator<<(ostream& output, const Date& d)																									//prints date	
+
+		//prints date
+		friend ostream& operator<<(ostream& output, const Date& d)																										
 		{
 			return output << d.month() << '/' << d.day() << '/' << d.year() << '\n';
 		}
-		friend istream& operator>>(istream& input, Date& d)																											//parses input into date
+
+		//parses input into date
+		friend istream& operator>>(istream& input, Date& d)																											
 		{
 			string params[3];
 			string line;
@@ -194,16 +209,20 @@ namespace date {
 
 			return input;
 		}
-		bool operator ==(const Date& b) const																														//operator ==
+
+		//operator ==
+		bool operator ==(const Date& b) const																														
 		{
 			return ((day() == b.day()) && (month() == b.month()) && (year() == b.year()));
 		}
-		bool operator !=(const Date& b) const																														//operator !=
+
+		//operator !=
+		bool operator !=(const Date& b) const																														
 		{
 			return ((day() != b.day()) || (month() != b.month()) || (year() != b.year()));
 		}
 
-																																									//read-only functions
+		//read-only functions
 		unsigned short int day() const { return _day; }
 		unsigned short int month() const { return _month; }
 		unsigned short int year() const { return _year; }
