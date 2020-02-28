@@ -159,7 +159,7 @@ namespace date {
         }
 
         static Date CurrentDate() noexcept {
-            Date res((time(NULL) / 86400) + 719544);
+            Date res(((time(NULL) + 57600) / 86400) + 719543); //hopefully fixed
             return res;
         }
 
