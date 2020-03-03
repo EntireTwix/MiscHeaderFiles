@@ -5,15 +5,13 @@
 #include <sstream>
 #include <climits>
 
-using namespace std;
-
 namespace date {
 	//finds month length of given month and year
-	unsigned char MonthLength(unsigned char month, unsigned short int year) 
+	unsigned char MonthLength(unsigned char month, unsigned short int year)
 	{
-		if (month > 12) throw new exception("month cant be bigger then 12");
-		if (month <= 0) throw new exception("month cant be a negative value");
-		if (year < 0) throw new exception("year cant be a negative value");
+		if (month > 12) throw new std::exception("month cant be bigger then 12");
+		if (month <= 0) throw new std::exception("month cant be a negative value");
+		if (year < 0) throw new std::exception("year cant be a negative value");
 		switch (month) {
 		case 1:
 			return 31;
@@ -41,7 +39,7 @@ namespace date {
 		case 12:
 			return 31;
 		default:
-			throw new exception("unkown error occured");
+			throw new std::exception("unkown error occured");
 		}
 	}
 
@@ -53,15 +51,15 @@ namespace date {
 		Date() = default;
 
 		//default
-		Date(unsigned char d, unsigned char m, unsigned short int y = 0) : _day(d), _month(m), _year(y)															
+		Date(unsigned char d, unsigned char m, unsigned short int y = 0) : _day(d), _month(m), _year(y)
 		{
-			if (((d < 0) || (m < 1) || (y < 0)) || ((d > date::MonthLength(m, y)) || (m > 12))) throw new exception("invalid parameters");
+			if (((d < 0) || (m < 1) || (y < 0)) || ((d > date::MonthLength(m, y)) || (m > 12))) throw new std::exception("invalid parameters");
 		}
 
 		//constructor with number of days
-		explicit Date(unsigned int a)																															
+		explicit Date(unsigned int a)
 		{
-			if (a < 0) throw new exception("date can not be negative");
+			if (a < 0) throw new std::exception("date can not be negative");
 			for (int i = 0; i < a; ++i) {
 				//if days valid
 				if (_day < MonthLength(_month, _year))
@@ -86,7 +84,7 @@ namespace date {
 						//reset months
 						_month = 1;
 						//add year
-						if (_year == USHRT_MAX) throw new exception("Date has exceeded max size");
+						if (_year == USHRT_MAX) throw new std::exception("Date has exceeded max size");
 						_year++;
 					}
 				}
@@ -94,9 +92,9 @@ namespace date {
 		}
 
 		//constructor with number of days
-		Date& operator=(unsigned int a)																															
+		Date& operator=(unsigned int a)
 		{
-			if (a < 0) throw new exception("date can not be negative");
+			if (a < 0) throw new std::exception("date can not be negative");
 			_day = 0;
 			_month = 1;
 			_year = 0;
@@ -124,7 +122,7 @@ namespace date {
 						//reset months
 						_month = 1;
 						//add year
-						if (_year == USHRT_MAX) throw new exception("Date has exceeded max size");
+						if (_year == USHRT_MAX) throw new std::exception("Date has exceeded max size");
 						_year++;
 					}
 				}
@@ -133,7 +131,7 @@ namespace date {
 		}
 
 		//days total conversion
-		operator unsigned int() const noexcept																														
+		operator unsigned int() const noexcept
 		{
 			unsigned int sum = 0;
 			unsigned char d = _day;
@@ -171,53 +169,58 @@ namespace date {
 		}
 
 		//gets current date function
-		static Date CurrentDate() noexcept																															 
+		static Date CurrentDate() noexcept
 		{
 			Date res(((time(NULL) + 57600) / 86400) + 719543); //hopefully fixed
 			return res;
 		}
 
-		//prints date
-		friend ostream& operator<<(ostream& output, const Date& d)																										
+		std::string ToString()
 		{
-			return output << d.month() << '/' << d.day() << '/' << d.year() << '\n';
+			return std::to_string(month()) + '/' + std::to_string(day()) + '/' + std::to_string(year());
+		}
+
+		//prints date
+		friend std::ostream& operator<<(std::ostream& output, const Date& d)
+		{
+			return output << d.month() << '/' << d.day() << '/' << d.year();
 		}
 
 		//parses input into date
-		friend istream& operator>>(istream& input, Date& d)																											
+		friend std::istream& operator>>(std::istream& input, Date& d)
 		{
-			string params[3];
-			string line;
+			std::string params[3];
+			std::string line;
 			input >> line;
-			stringstream ss(line);
+			std::stringstream ss(line);
 			int size = 0;
 			for (int i = 0; getline(ss, line, '/'); ++i) {
-				if (i == 4) throw new exception("invalid number of parameters for class:Date");
+				if (i == 4) throw new std::exception("invalid number of parameters for class:Date");
 				params[i] = line;
 				size = i;
 			}
 			//size check
-			if (size != 2) throw new exception("invalid number of parameters for class:Date");
+			if (size != 2) throw new std::exception("invalid number of parameters for class:Date");
 
 			//parameter checks
 			try {
 				d = Date(stoi(params[1]), stoi(params[0]), stoi(params[2]));
 			}
 			catch (...) {
-				throw new exception("invalid parameters for Date");
+				throw new std::exception("invalid parameters for Date");
 			}
 
 			return input;
 		}
 
 		//operator ==
-		bool operator ==(const Date& b) const																														
+		bool operator ==(const Date& b) const
 		{
 			return ((day() == b.day()) && (month() == b.month()) && (year() == b.year()));
 		}
 
 		//operator !=
-		bool operator !=(const Date& b) const																														
+		bool operator !=(const Date& b) const
 		{
 			return ((day() != b.day()) || (month() != b.month()) || (year() != b.year()));
 		}
