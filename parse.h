@@ -31,14 +31,14 @@ public:
 		inputFile.close();
 		return result;
 	}
-	static void Save(string location, vector<vector<string> > vec, char sep) {
+	static void Save(string location, vector<vector<string> > vec, char sep, unsigned short int thresholdSize = 0) {
 		ofstream outputFile(location);
 		for (int i = 0; i < vec.size(); ++i) {
 			for (int j = 0; j < vec[i].size(); ++j) {
 				outputFile << vec[i][j];
 				if (j != vec[i].size() - 1) outputFile << sep;
 			}
-			outputFile << '\n';
+			if(vec[i].size() >= thresholdSize) outputFile << '\n';
 		}
 		
 	}
