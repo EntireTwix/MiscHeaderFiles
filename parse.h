@@ -1,16 +1,15 @@
 #pragma once
-#include <iostream>
 #include <vector>
 #include <fstream>
 #include <sstream>
-using namespace std;
 
+template<typename T>
 class TextParser sealed {
 private:
-	static vector<string>ParseLine(string line, char sep) {
-		stringstream ss(line);
-		vector<string> result;
-		string temp;
+	static std::vector<std::string>ParseLine(std::string line, char sep) {
+		std::stringstream ss(line);
+		std::vector<std::string> result;
+		std::string temp;
 		while (getline(ss, temp, sep)) {
 			result.push_back(temp);
 		}
@@ -18,10 +17,10 @@ private:
 	}
 
 public:
-	static vector< vector<string> >Parse(string location, char sep, unsigned long numOfVars = NULL) {
-		ifstream inputFile(location);
-		vector<vector<string> >result;
-		string line;
+	static std::vector< std::vector<std::string> >Parse(std::string location, char sep, unsigned long numOfVars = NULL) {
+		std::ifstream inputFile(location);
+		std::vector<std::vector<std::string> >result;
+		std::string line;
 		for (int i = 0; getline(inputFile, line); ++i) {
 			if (numOfVars != NULL) {
 				if (ParseLine(line, sep).size() != numOfVars) throw new exception((i + 1) + "line has an invalid amount of parameters");
@@ -31,16 +30,23 @@ public:
 		inputFile.close();
 		return result;
 	}
-	static void Save(string location, vector<vector<string> > vec, char sep, unsigned short int thresholdSize = 0) {
-		ofstream outputFile(location);
+
+	static void Save(std::string location, std::vector<std::vector<std::string>> vec, char sep, unsigned short int thresholdSize = 0) {
+		std::ofstream outputFile(location);
 		for (int i = 0; i < vec.size(); ++i) {
-			if (vec[i].size() >= thresholdSize) {
-				for (int j = 0; j < vec[i].size(); ++j) {
-					outputFile << vec[i][j];
-					if (j != vec[i].size() - 1) outputFile << sep;
-				}
-				outputFile << '\n';
+			for (int j = 0; j < vec[i].size(); ++j) {
+				outputFile << vec[i][j];
+				if (j != vec[i].size() - 1) outputFile << sep;
 			}
+			if (vec[i].size() >= thresholdSize) outputFile << '\n';
 		}
+		outputFile.close();
+	}
+	static void Save(std::string location, std::vector<T> vec, char sep) {
+		std::ofstream outputFile(location);
+		for (int i = 0; i < vec.size(); ++i) {
+			outputFile << vec[i] << sep;
+		}
+		outputFile.close();
 	}
 };
