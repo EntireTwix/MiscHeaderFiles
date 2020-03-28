@@ -3,7 +3,6 @@
 #include <fstream>
 #include <sstream>
 
-template<typename T>
 class TextParser sealed {
 private:
 	static std::vector<std::string>ParseLine(std::string line, char sep) {
@@ -15,15 +14,27 @@ private:
 		}
 		return result;
 	}
-
+	
 public:
+	static std::vector<std::string>Parse(std::string location)
+	{
+		std::ifstream inputFile(location);
+		std::vector<std::string>result;
+		std::string line;
+		for (int i = 0; getline(inputFile, line, '\n'); ++i) {
+			result.push_back(line);
+		}
+		inputFile.close();
+		return result;
+	}
+
 	static std::vector< std::vector<std::string> >Parse(std::string location, char sep, unsigned long numOfVars = NULL) {
 		std::ifstream inputFile(location);
 		std::vector<std::vector<std::string> >result;
 		std::string line;
 		for (int i = 0; getline(inputFile, line); ++i) {
 			if (numOfVars != NULL) {
-				if (ParseLine(line, sep).size() != numOfVars) throw new exception((i + 1) + "line has an invalid amount of parameters");
+				if (ParseLine(line, sep).size() != numOfVars) throw new std::exception((i + 1) + "line has an invalid amount of parameters");
 			}
 			result.push_back(ParseLine(line, sep));
 		}
@@ -42,6 +53,8 @@ public:
 		}
 		outputFile.close();
 	}
+
+	template<typename T>
 	static void Save(std::string location, std::vector<T> vec, char sep) {
 		std::ofstream outputFile(location);
 		for (int i = 0; i < vec.size(); ++i) {
