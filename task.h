@@ -4,8 +4,7 @@
 #include <vector>
 #include <algorithm>  
 
-//abstract
-struct Task
+struct Task //abstract
 {
 	bool prioritized = false;
 	float priority = 0;
@@ -19,45 +18,49 @@ struct Task
 	virtual void Import(const std::vector<std::string>& params) = 0;
 };
 
-//abstract
-class PriorityFunctor
+template <typename T> // T should be type of Task
+class PriorityFunctor //abstract
 {
 public:
 	//this throwing an error would be it returning 0
-	virtual float operator()(Task* t) const { return 0; }
+	virtual float operator()(T t) const { return 0; }
 };
 
-//concrete but can still have children
-class TaskContainer
+template <typename T>
+class TaskContainer  //concrete but can still have children
 {
 private:
-	std::vector<Task*> tasks;
-	PriorityFunctor* pFunc;
+	std::vector<T> tasks;
+	PriorityFunctor<T>* pFunc;
 public:
 	TaskContainer() = delete;
-	TaskContainer(std::vector<Task*> tasks, PriorityFunctor* p)
+	TaskContainer(PriorityFunctor<T>* p)
+	{
+		this->pFunc = p;
+	}
+	TaskContainer(std::vector<T> tasks, PriorityFunctor<T>* p)
 	{
 		this->tasks = tasks;
 		this->pFunc = p;
 	}
 	virtual void PrioritizeAll()
 	{
-		for (auto t : tasks)
+		for (auto& t : tasks)
 		{
 			if (this->pFunc->operator()(t) != 0)
 			{
-				t->prioritized = true;
-				t->priority = this->pFunc->operator()(t);
+				t.prioritized = true;
+				t.priority = this->pFunc->operator()(t);
 			}
 		}
 	}
 
-	std::vector<Task*> GetPrioritizedTasks() const
+	std::vector<T> GetPrioritizedTasks() const
 	{
-		std::vector<Task*> res;
-		for (auto t : this->tasks)
+		std::vector<T> res;
+		for (T t : this->tasks)
 		{
-			if (t->prioritized)
+			if (t.prioritized)
 			{
 				res.push_back(t);
 			}
@@ -66,11 +69,11 @@ public:
 		return res;
 	}
 
-	void Add(Task* t) noexcept
+	void Add(T t) noexcept
 	{
 		this->tasks.push_back(t);
 	}
-	void Remove(Task* t) noexcept
+	void Remove(T t) noexcept
 	{
 		for (int i = 0; i < tasks.size(); ++i)
 		{
@@ -89,13 +92,8 @@ public:
 			}
 		}
 	}
-
 	~TaskContainer()
 	{
-		for (auto t : tasks)
-		{
-			delete t;
-		}
 		delete pFunc;
 	}
 };
