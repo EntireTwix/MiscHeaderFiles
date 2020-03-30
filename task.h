@@ -69,11 +69,11 @@ public:
 		return res;
 	}
 
-	void Add(T t) noexcept
+	void Add(const T& t) noexcept
 	{
 		this->tasks.push_back(t);
 	}
-	void Remove(T t) noexcept
+	void Remove(const T& t) noexcept
 	{
 		for (int i = 0; i < tasks.size(); ++i)
 		{
