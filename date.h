@@ -45,7 +45,7 @@ namespace date {
 
 	class Date sealed {
 	private:
-		unsigned char _day = 0, _month = 1;
+		unsigned char _day = 1, _month = 1;
 		unsigned short int _year = 0;
 	public:
 		Date() = default;
@@ -163,7 +163,7 @@ namespace date {
 						d = MonthLength(m, y);
 					}
 				}
-				sum++;
+				++sum;
 			}
 			return sum;
 		}
