@@ -4,6 +4,11 @@
 #include <vector>
 #include <algorithm>  
 
+float sig(float x)
+{
+	return (1 / (1 + exp(-x)));
+}
+
 struct Task //abstract
 {
 	bool prioritized = false;
