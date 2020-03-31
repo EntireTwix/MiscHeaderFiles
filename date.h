@@ -171,7 +171,7 @@ namespace date {
 		//gets current date function
 		static Date CurrentDate() noexcept
 		{
-			Date res(((time(NULL) + 57600) / 86400) + 719543); //hopefully fixed
+			Date res(((time(NULL) + 57600) / 86400) + 719542); //hopefully fixed
 			return res;
 		}
 
