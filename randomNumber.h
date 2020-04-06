@@ -3,20 +3,22 @@
 #include <ctime>
 #include <assert.h>
 
-short findPrecision(double a) {
-	assert(a >= 0);
+int findPrecision(double x) {
+	assert(x >= 0);
 	int i = 0;
-	for (; (x* pow(10, p)) > ((int)(x * pow(10, p))); ++p)
+	for (; (x * pow(10, i)) > ((int)(x * pow(10, i))); ++i);
+	
 	++i;
 	return i;
 }
+
 
 /* lowest , highest (both positive)*/
 double pickNumber(double a, double b) {
 	assert((a >= 0) && (b >= 0));
 	assert(a < b);
 
-	int increment;
+	short increment;
 	if (findPrecision(a) > findPrecision(b)) {
 		//if A is more precise
 		increment = pow(10, findPrecision(a));
