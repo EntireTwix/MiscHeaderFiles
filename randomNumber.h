@@ -5,30 +5,18 @@
 
 short findPrecision(double a) {
 	assert(a >= 0);
-	short i = 0;
-
-	if (a == 0) {
-		return 0;
-	}
-	else if (a <= 1) {
-		//ex:0.01
-		for (; (a * (pow(10, i)) < 1); ++i);
-	}
-	else{
-		//ex:1.1
-		for (; (double)((int)(a * pow(10, i))) != a * pow(10, i); ++i);
-	}
+	int i = 0;
+	for (; (x* pow(10, p)) > ((int)(x * pow(10, p))); ++p)
 	++i;
 	return i;
 }
-
 
 /* lowest , highest (both positive)*/
 double pickNumber(double a, double b) {
 	assert((a >= 0) && (b >= 0));
 	assert(a < b);
 
-	short increment;
+	int increment;
 	if (findPrecision(a) > findPrecision(b)) {
 		//if A is more precise
 		increment = pow(10, findPrecision(a));
