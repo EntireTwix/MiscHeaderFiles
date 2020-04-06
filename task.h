@@ -2,7 +2,8 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <algorithm>  
+#include <algorithm>
+#include <concepts>
 
 struct Task //abstract
 {
@@ -18,7 +19,10 @@ struct Task //abstract
 	virtual void Import(const std::vector<std::string>& params) = 0;
 };
 
-template <typename T> // T should be type of Task
+template <typename T>
+concept Is_Prioritizable = requires (T task) { {task.priority}->float; };
+
+template <Is_Prioritizable T> // T should be type of Task
 class PriorityFunctor //abstract
 {
 public:
@@ -26,7 +30,7 @@ public:
 	virtual float operator()(T t) const { return 0; }
 };
 
-template <typename T>
+template <Is_Prioritizable T>
 class TaskContainer  //concrete but can still have children
 {
 private:
