@@ -1,6 +1,4 @@
 #pragma once
-#include <string>
-#include <memory>
 #include <vector>
 #include <algorithm>
 #include <concepts>
@@ -24,7 +22,8 @@ concept Is_Prioritizable = requires (T task)
 { 
 	{task.priority}->float; 
 	{task.prioritized}->bool;
-};
+	{task < task}->bool;
+};	
 
 template <Is_Prioritizable T> // T should be type of Task
 class PriorityFunctor //abstract
