@@ -20,7 +20,11 @@ struct Task //abstract
 };
 
 template <typename T>
-concept Is_Prioritizable = requires (T task) { {task.priority}->float; };
+concept Is_Prioritizable = requires (T task) 
+{ 
+	{task.priority}->float; 
+	{task.prioritized}->bool;
+};
 
 template <Is_Prioritizable T> // T should be type of Task
 class PriorityFunctor //abstract
