@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <exception>
 
 class TextParser sealed {
 private:
