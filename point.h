@@ -11,7 +11,7 @@ public:
 	Point() noexcept { if(size() > 0 ) members = new double[size()]; }
 	Point(std::initializer_list<double> list)
 	{
-		if (list.size() > size()) throw new std::bad_array_new_length;
+		if (list.size() > size()) throw std::invalid_argument("list size can not be greater then size of Point");
 		double* p = new double[list.size()];
 		{
 			int i = 0;
@@ -30,18 +30,18 @@ public:
 	}
 	explicit Point(std::vector<double> list)
 	{
-		if (list.size() > size()) throw new std::bad_array_new_length;
+		if (list.size() > size()) std::invalid_argument("list size can not be greater then size of Point");
 		if (size() > 0) members = new double[size()]{ 0 };
 		for (int i = 0; i < list.size(); ++i)
 		{
 			members[i] = list[i];
 		}
 	}
-	explicit Point(Point&& p) noexcept { members = std::move(p.members); this->sz = p.sz; p.sz = 0; }
-	void operator=(Point&& p) noexcept { members = std::move(p.members); this->sz = p.sz; p.sz = 0; }
-	void operator=(Point& p) noexcept { members = std::copy(p.members); this->sz = p.sz; }
-	~Point() { delete[] members; }
-
+	explicit Point(Point&& p) noexcept { this->members = std::move(p.members); this->sz = p.sz; p.sz = 0; }
+	void operator=(Point&& p) noexcept { this->members = std::move(p.members); this->sz = p.sz; p.sz = 0; }
+	void operator=(Point& p) noexcept { this->members = std::copy(p.members); this->sz = p.sz; }
+	~Point() { delete[] this->members; }
+	
 	friend std::ostream& operator<<(std::ostream& os, const Point& p) noexcept
 	{
 		for (double* d = p.members; *d; ++d)
@@ -53,11 +53,11 @@ public:
 	}
 	double& operator[](int pos)
 	{
-		if ((pos < 0) || (pos > size())) throw new std::out_of_range;
+		if ((pos < 0) || (pos > size())) throw std::out_of_range("cant be negative or greater then size()");
 		
 		return members[pos];
 	}
-	unsigned size() const { if (sz < 0) return NULL; return sz; }
+	constexpr unsigned size() const { if (sz < 0) return NULL; return sz; }
 };
 
 using Point2 = Point<2>;
