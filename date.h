@@ -39,12 +39,8 @@ namespace date {
 			return 30;
 		case 12:
 			return 31;
-		default:
-			throw new std::exception("unkown error occured");
 		}
 	}
-
-	const Date CurrentDate(((time(NULL) + 57600) / 86400) + 719542);
 
 	class Date sealed {
 	private:
@@ -52,6 +48,7 @@ namespace date {
 		unsigned short int _year = 0;
 	public:
 		Date() = default;
+		
 
 		//default
 		Date(unsigned char d, unsigned char m, unsigned short int y = 0) : _day(d), _month(m), _year(y)
@@ -226,5 +223,7 @@ namespace date {
 		unsigned short int month() const { return _month; }
 		unsigned short int year() const { return _year; }
 	};
+
+	const Date CurrentDate(((time(NULL) + 57600) / 86400) + 719542);
 
 }
