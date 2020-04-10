@@ -55,13 +55,13 @@ namespace date {
 		//default
 		Date(unsigned char d, unsigned char m, unsigned short int y = 0) : _day(d), _month(m), _year(y)
 		{
-			if (((d < 0) || (m < 1) || (y < 0)) || ((d > date::MonthLength(m, y)) || (m > 12))) throw new std::exception("invalid parameters");
+			if (((d < 0) || (m < 1) || (y < 0)) || ((d > date::MonthLength(m, y)) || (m > 12))) throw new std::invalid_argument("invalid parameters");
 		}
 
 		//constructor with number of days
 		explicit Date(unsigned int a)
 		{
-			if (a < 0) throw new std::exception("date can not be negative");
+			if (a < 0) throw new std::out_of_range("date can not be negative");
 			for (int i = 0; i < a; ++i) {
 				//if days valid
 				if (_day < MonthLength(_month, _year))
@@ -86,7 +86,7 @@ namespace date {
 						//reset months
 						_month = 1;
 						//add year
-						if (_year == USHRT_MAX) throw new std::exception("Date has exceeded max size");
+						if (_year == USHRT_MAX) throw new std::out_of_range("Date has exceeded max size");
 						_year++;
 					}
 				}
@@ -96,7 +96,7 @@ namespace date {
 		//constructor with number of days
 		Date& operator=(unsigned int a)
 		{
-			if (a < 0) throw new std::exception("date can not be negative");
+			if (a < 0) throw new std::out_of_range("date can not be negative");
 			_day = 0;
 			_month = 1;
 			_year = 0;
@@ -124,7 +124,7 @@ namespace date {
 						//reset months
 						_month = 1;
 						//add year
-						if (_year == USHRT_MAX) throw new std::exception("Date has exceeded max size");
+						if (_year == USHRT_MAX) throw new std::out_of_range("Date has exceeded max size");
 						_year++;
 					}
 				}
@@ -190,19 +190,19 @@ namespace date {
 			std::stringstream ss(line);
 			int size = 0;
 			for (int i = 0; getline(ss, line, '/'); ++i) {
-				if (i == 4) throw new std::exception("invalid number of parameters for class:Date");
+				if (i == 4) throw new std::invalid_argument("invalid number of parameters for class:Date");
 				params[i] = line;
 				size = i;
 			}
 			//size check
-			if (size != 2) throw new std::exception("invalid number of parameters for class:Date");
+			if (size != 2) throw new std::invalid_argument("invalid number of parameters for class:Date");
 
 			//parameter checks
 			try {
 				d = Date(stoi(params[1]), stoi(params[0]), stoi(params[2]));
 			}
 			catch (...) {
-				throw new std::exception("invalid parameters for Date");
+				throw new std::invalid_argument("invalid parameters for Date");
 			}
 
 			return input;
@@ -225,4 +225,5 @@ namespace date {
 		unsigned short int month() const { return _month; }
 		unsigned short int year() const { return _year; }
 	};
+
 }
