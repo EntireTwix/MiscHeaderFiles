@@ -43,6 +43,8 @@ namespace date {
 		}
 	}
 
+	const Date CurrentDate(((time(NULL) + 57600) / 86400) + 719542);
+
 	class Date sealed {
 	private:
 		unsigned char _day = 1, _month = 1;
@@ -168,13 +170,6 @@ namespace date {
 			return sum;
 		}
 
-		//gets current date function
-		static Date CurrentDate() noexcept
-		{
-			Date res(((time(NULL) + 57600) / 86400) + 719542); //hopefully fixed
-			return res;
-		}
-
 		std::string ToString()
 		{
 			return std::to_string(month()) + '/' + std::to_string(day()) + '/' + std::to_string(year());
@@ -230,5 +225,4 @@ namespace date {
 		unsigned short int month() const { return _month; }
 		unsigned short int year() const { return _year; }
 	};
-
 }
