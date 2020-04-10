@@ -4,14 +4,15 @@
 #include <string>
 #include <sstream>
 #include <climits>
+#include <assert.h>
 
 namespace date {
 	//finds month length of given month and year
 	unsigned char MonthLength(unsigned char month, unsigned short int year)
 	{
-		if (month > 12) throw new std::exception("month cant be bigger then 12");
-		if (month <= 0) throw new std::exception("month cant be a negative value");
-		if (year < 0) throw new std::exception("year cant be a negative value");
+		assert((month <= 12), "month cant be bigger then 12");
+		assert((month > 0), "month cant be a negative value");
+		assert((year >= 0), "year cant be a negative value");
 		switch (month) {
 		case 1:
 			return 31;
