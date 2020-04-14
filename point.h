@@ -29,7 +29,7 @@ public:
 		if (size() > 0) members = new float[size()]{ 0 };
 		for (int i = 0; i < list.size(); ++i)
 		{
-			members[i] = list[i];
+			members[i] = (float)list[i];
 		}
 	}
 	explicit Point(Point&& p) noexcept { members = std::move(p.members); sz = p.sz; p.sz = 0; }
