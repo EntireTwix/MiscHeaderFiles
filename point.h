@@ -12,7 +12,7 @@ public:
 	Point(std::initializer_list<double> list)
 	{
 		if (list.size() > size()) throw std::invalid_argument("list size can not be greater then size of Point");
-		double* p = new double[list.size()];
+		double* p = new double[size()]{ 0 };
 		{
 			int i = 0;
 			for (double d : list)
@@ -26,16 +26,16 @@ public:
 	explicit Point(const std::vector<double>& list)
 	{
 		if (list.size() > size()) std::invalid_argument("list size can not be greater then size of Point");
-		if (size() > 0) members = new double[size()];
+		if (size() > 0) members = new double[size()]{ 0 };
 		for (int i = 0; i < list.size(); ++i)
 		{
 			members[i] = list[i];
 		}
 	}
-	explicit Point(Point&& p) noexcept { this->members = std::move(p.members); this->sz = p.sz; p.sz = 0; }
-	void operator=(Point&& p) noexcept { this->members = std::move(p.members); this->sz = p.sz; p.sz = 0; }
-	void operator=(Point& p) noexcept { this->members = std::copy(p.members); this->sz = p.sz; }
-	~Point() { delete[] this->members; }
+	explicit Point(Point&& p) noexcept { members = std::move(p.members); sz = p.sz; p.sz = 0; }
+	void operator=(Point&& p) noexcept { members = std::move(p.members); sz = p.sz; p.sz = 0; }
+	void operator=(Point& p) noexcept { members = std::copy(p.members); sz = p.sz; }
+	~Point() { delete[] members; }
 	
 	double& operator[](int pos)
 	{
