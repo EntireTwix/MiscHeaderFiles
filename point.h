@@ -25,7 +25,7 @@ public:
 	}
 	explicit Point(const std::vector<float>& list)
 	{
-		if (list.size() > size()) std::invalid_argument("list size can not be greater then size of Point");
+		if (list.size() > size()) throw std::invalid_argument("list size can not be greater then size of Point");
 		if (size() > 0) members = new float[size()]{ 0 };
 		for (int i = 0; i < list.size(); ++i)
 		{
