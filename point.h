@@ -32,20 +32,21 @@ public:
 			members[i] = (float)list[i];
 		}
 	}
-	explicit Point(Point&& p) noexcept { members = std::move(p.members); sz = p.sz; p.sz = 0; }
-	void operator=(Point&& p) noexcept { members = std::move(p.members); sz = p.sz; p.sz = 0; }
-	void operator=(Point& p) noexcept { members = std::copy(p.members); sz = p.sz; }
+	template <int I>
+	explicit Point(Point<I>&& p) noexcept { members = std::move(p.members); sz = p.sz; p.sz = 0; }
+	
+	template <int I>
+	void operator=(Point<I>&& p) noexcept { members = std::move(p.members); sz = p.sz; p.sz = 0; }
+	
+	template <int I>
+	void operator=(const Point<I>& p) noexcept { members = std::copy(p.members); sz = p.sz; }
 	~Point() { delete[] members; }
 	
-	void ApplyFunction(void (*func)(float&))
-	{
-		for (int i = 0; i < size(); ++i) func(members[i]);
-	}
+	void ApplyFunction(void (*func)(float&)) { for (int i = 0; i < size(); ++i) func(members[i]); }
 	constexpr unsigned size() const { if (sz < 0) return NULL; return sz; }
 	float& operator[](int pos)
 	{
 		if ((pos < 0) || (pos > size())) throw std::out_of_range("cant be negative or greater then size()");
-
 		return members[pos];
 	}
 
