@@ -37,15 +37,17 @@ public:
 	void operator=(Point& p) noexcept { members = std::copy(p.members); sz = p.sz; }
 	~Point() { delete[] members; }
 	
+	void ApplyFunction(void (*func)(float&))
+	{
+		for (int i = 0; i < size(); ++i) func(members[i]);
+	}
+	constexpr unsigned size() const { if (sz < 0) return NULL; return sz; }
 	float& operator[](int pos)
 	{
 		if ((pos < 0) || (pos > size())) throw std::out_of_range("cant be negative or greater then size()");
 
 		return members[pos];
 	}
-
-	constexpr unsigned size() const { if (sz < 0) return NULL; return sz; }
-	const unsigned size_of = size() * 4;
 
 	template <int I>
 	friend std::ostream& operator<<(std::ostream& os, const Point<I>& p) noexcept
