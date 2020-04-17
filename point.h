@@ -10,6 +10,7 @@ public:
 	Point() = default;
 	Point(std::initializer_list<Num> list)
 	{
+		if (list.size() == 0) throw std::invalid_argument("list must be atleast 1 item");
 		Num* params = new Num[list.size()];
 		int j = 0;
 		for (Num n : list)
@@ -26,20 +27,35 @@ public:
 		delete[] params;
 
 	}
-	Point(const Point<sz, Num>& p)
+	Point(const Point<sz, Num>& p) noexcept
 	{
 		for (unsigned i = 0; i < p.size(); ++i)
 		{
 			members[i] = p[i];
 		}
 	}
-	Point(Point<sz, Num>&& p)
+	Point<sz, Num> operator=(const Point<sz, Num>& p) noexcept
+	{
+		for (unsigned i = 0; i < p.size(); ++i)
+		{
+			members[i] = p[i];
+		}
+		return *this;
+	}
+	Point(Point<sz, Num>&& p) noexcept
 	{
 		members = p.members;
 		p.members = nullptr;
 	}
+	Point<sz, Num> operator=(Point<sz, Num>&& p) noexcept
+	{
+		members = p.members;
+		p.members = nullptr;
+		return *this;
+	}
 	~Point() { delete[] members; }
 
+	constexpr unsigned size() const { return (sz > 0) ? sz : 0; }
 	friend std::ostream& operator<<(std::ostream& os, const Point<sz, Num>& p)
 	{
 		os << "{ ";
@@ -59,12 +75,10 @@ public:
 		if (pos >= size() || pos < 0) throw new std::out_of_range("can't index out of size");
 		return members[pos];
 	}
-
-	constexpr unsigned size() const { return (sz > 0) ? sz : 0; }
 };
 
 template <int sz>
-using PointD = Point<sz, double>;
+using PointD = Point<sz, double>;	
 template <int sz>
 using PointLD = Point<sz, long double>;
 
