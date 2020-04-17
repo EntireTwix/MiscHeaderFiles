@@ -3,20 +3,20 @@
 #include <initializer_list>
 
 template <typename Type>
-class mat
+class Mat
 {
 private:
 	Type** members = nullptr;
 	unsigned size_x = 0, size_y = 0;
 public:
 	using value_type = Type;
-	mat() = default;
-	mat(std::initializer_list<std::initializer_list<Type> > list)
+	Mat() = default;
+	Mat(std::initializer_list<std::initializer_list<Type> > list)
 	{
 		int last = 0, i = 0;
 		for (auto vec : list)
 		{
-			if( (vec.size() != last) && (i != 0) ) throw std::invalid_argument("width has to be a constant in the matrix");
+			if( (vec.size() != last) && (i != 0) ) throw std::invalid_argument("width has to be a constant in the Matrix");
 			last = vec.size();
 			++i;
 		}
@@ -42,11 +42,11 @@ public:
 		size_x = last;
 		size_y = h;
 	}
-	explicit mat(int x, int y)
+	explicit Mat(int x, int y)
 	{
 		if ((x < 1) || (y < 1)) throw std::invalid_argument("both x and y must be positive");
 
-		//make matrix
+		//make Matrix
 		members = new Type * [y];
 		for (int i = 0; i < y; ++i)
 		{
@@ -59,7 +59,7 @@ public:
 	}
 	
 	//move operators
-	mat(mat<Type>&& m) noexcept
+	Mat(Mat<Type>&& m) noexcept
 	{
 		members = m.members;
 		size_x = m.size_x;
@@ -67,7 +67,7 @@ public:
 		m.members = nullptr;
 		m.size_y = m.size_x = 0;
 	}
-	mat<Type> operator=(mat<Type>&& m) noexcept
+	Mat<Type> operator=(Mat<Type>&& m) noexcept
 	{
 		members = m.members;
 		size_x = m.size_x;
@@ -78,7 +78,7 @@ public:
 	}
 
 	//assignment operators
-	mat(const mat<Type>& m) noexcept
+	Mat(const Mat<Type>& m) noexcept
 	{
 		if (m.members)
 		{
@@ -96,7 +96,7 @@ public:
 		size_x = m.sizeX();
 		size_y = m.sizeY();
 	}
-	mat<Type> operator=(const mat<Type>& m) noexcept
+	Mat<Type> operator=(const Mat<Type>& m) noexcept
 	{
 		if (m.members)
 		{
@@ -139,7 +139,7 @@ public:
 	int sizeX() const { return size_x; }
 	int sizeY() const { return size_y; }
 
-	friend std::ostream& operator<<(std::ostream& os, const mat& m)
+	friend std::ostream& operator<<(std::ostream& os, const Mat& m)
 	{
 		for (int i = 0; i < m.sizeY(); ++i)
 		{
@@ -152,5 +152,7 @@ public:
 		return os<<'\n';
 	}
 
-	~mat() { delete[] members;  }
+	~Mat() { delete[] members;  }
+	
+
 };
