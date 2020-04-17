@@ -67,7 +67,7 @@ public:
 		m.members = nullptr;
 		m.size_y = m.size_x = 0;
 	}
-	operator=(mat<Type>&& m) noexcept
+	mat<Type> operator=(mat<Type>&& m) noexcept
 	{
 		members = m.members;
 		size_x = m.size_x;
@@ -94,7 +94,7 @@ public:
 			}
 		}
 	}
-	operator=(const mat<Type>& m) noexcept
+	mat<Type> operator=(const mat<Type>& m) noexcept
 	{
 		if (m.members)
 		{
