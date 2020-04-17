@@ -93,6 +93,8 @@ public:
 				}
 			}
 		}
+		size_x = m.sizeX();
+		size_y = m.sizeY();
 	}
 	mat<Type> operator=(const mat<Type>& m) noexcept
 	{
@@ -109,6 +111,8 @@ public:
 				}
 			}
 		}
+		size_x = m.sizeX();
+		size_y = m.sizeY();
 		return *this;
 	}
 
@@ -149,6 +153,4 @@ public:
 	}
 
 	~mat() { delete[] members;  }
-	
-
 };
