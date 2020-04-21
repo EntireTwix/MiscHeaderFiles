@@ -2,11 +2,10 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include <exception>
 
 class TextParser sealed {
 private:
-	static std::vector<std::string>ParseLine(std::string line, char sep) {
+	static std::vector<std::string>ParseLine(const std::string& line, char sep) {
 		std::stringstream ss(line);
 		std::vector<std::string> result;
 		std::string temp;
@@ -17,7 +16,7 @@ private:
 	}
 	
 public:
-	static std::vector<std::string>Parse(std::string location)
+	static std::vector<std::string>Parse(const std::string& location)
 	{
 		std::ifstream inputFile(location);
 		std::vector<std::string>result;
@@ -29,7 +28,7 @@ public:
 		return result;
 	}
 
-	static std::vector< std::vector<std::string> >Parse(std::string location, char sep, unsigned long numOfVars = NULL) {
+	static std::vector< std::vector<std::string> >Parse(const std::string& location, char sep, unsigned long numOfVars = NULL) {
 		std::ifstream inputFile(location);
 		std::vector<std::vector<std::string> >result;
 		std::string line;
@@ -43,7 +42,7 @@ public:
 		return result;
 	}
 
-	static void Save(std::string location, std::vector<std::vector<std::string>> vec, char sep, unsigned short int thresholdSize = 0) {
+	static void Save(const std::string& location, std::vector<std::vector<std::string>> vec, char sep, unsigned short int thresholdSize = 0) {
 		std::ofstream outputFile(location);
 		for (int i = 0; i < vec.size(); ++i) {
 			for (int j = 0; j < vec[i].size(); ++j) {
@@ -56,10 +55,18 @@ public:
 	}
 
 	template<typename T>
-	static void Save(std::string location, std::vector<T> vec, char sep) {
+	static void Save(const std::string& location, std::vector<T> vec, char sep) {
 		std::ofstream outputFile(location);
 		for (int i = 0; i < vec.size(); ++i) {
 			outputFile << vec[i] << sep;
+		}
+		outputFile.close();
+	}
+	template<typename T>
+	static void Save(const std::string& location, std::vector<T> vec) {
+		std::ofstream outputFile(location);
+		for (int i = 0; i < vec.size(); ++i) {
+			outputFile << vec[i];
 		}
 		outputFile.close();
 	}
