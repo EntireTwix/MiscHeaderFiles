@@ -42,7 +42,8 @@ namespace date {
 		}
 	}
 
-	class Date sealed {
+	class Date final 
+	{
 	private:
 		unsigned char _day = 1, _month = 1;
 		unsigned short int _year = 0;
