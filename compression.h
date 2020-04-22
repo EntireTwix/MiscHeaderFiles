@@ -6,7 +6,7 @@
 
 class Hoffman final
 {
-public:
+private:
     struct Node
     {
         //constructor
@@ -18,7 +18,6 @@ public:
             leftChild = lc;
             rightChild = rc;
         }
-
 
         //functions
         size_t GetSum(const std::vector<Node>& nodes) const
@@ -65,7 +64,7 @@ public:
 
         int parent = -1, leftChild = -1, rightChild = -1;
     };
-private:
+
     struct NodeComparisonFunctor
     {
         NodeComparisonFunctor(const std::vector<Node>& nodes)
@@ -166,14 +165,16 @@ public:
         }
         //now the last member of vector is the trees stump, and the first few ${originalSize} members
         
-        std::vector<bool> output;
+        std::vector<bool> output, vec;
         for(auto c : contents)
         {
             for(auto n : nodes) 
             {
                 if(n.character == c) 
                 {
-                    for(auto b : n.GetRoute(nodes) )
+                    vec = n.GetRoute(nodes);
+                    std::reverse(begin(vec), end(vec));
+                    for(auto b : vec)
                     {
                         output.push_back(b);
                     }
