@@ -2,10 +2,12 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <exception>
 
-class TextParser {
+class TextParser final 
+{
 private:
-	static std::vector<std::string> ParseLine(const std::string& line, char sep)
+	static std::vector<std::string> ParseLine(const std::string& line, char sep) 
 	{
 		std::stringstream ss(line);
 		std::vector<std::string> result;
@@ -15,7 +17,7 @@ private:
 		}
 		return result;
 	}
-
+	
 public:
 	static std::vector<std::string> Parse(const std::string& location)
 	{
@@ -29,16 +31,16 @@ public:
 		return result;
 	}
 
-	static std::vector< std::vector<std::string> > Parse(const std::string& location, char sep, unsigned long numOfVars = NULL)
+	static std::vector< std::vector<std::string> > Parse(const std::string& location, char sep, unsigned long numOfVars = 0) 
 	{
 		std::ifstream inputFile(location);
 		std::vector<std::vector<std::string> >result;
 		std::string line;
-		for (int i = 0; getline(inputFile, line); ++i)
+		for (int i = 0; getline(inputFile, line); ++i) 
 		{
-			if (numOfVars != NULL)
+			if (numOfVars != 0) 
 			{
-				if (ParseLine(line, sep).size() != numOfVars) throw new std::exception((i + 1) + "line has an invalid amount of parameters");
+				if (ParseLine(line, sep).size() != numOfVars) throw new std::invalid_argument((i + 1) + "line has an invalid amount of parameters");
 			}
 			result.push_back(ParseLine(line, sep));
 		}
@@ -46,12 +48,12 @@ public:
 		return result;
 	}
 
-	static void Save(const std::string& location, std::vector<std::vector<std::string>> vec, char sep, unsigned short int thresholdSize = 0)
+	static void Save(const std::string& location, std::vector<std::vector<std::string>> vec, char sep, unsigned short int thresholdSize = 0) 
 	{
 		std::ofstream outputFile(location);
-		for (int i = 0; i < vec.size(); ++i)
+		for (int i = 0; i < vec.size(); ++i) 
 		{
-			for (int j = 0; j < vec[i].size(); ++j)
+			for (int j = 0; j < vec[i].size(); ++j) 
 			{
 				outputFile << vec[i][j];
 				if (j != vec[i].size() - 1) outputFile << sep;
@@ -62,21 +64,21 @@ public:
 	}
 
 	template<typename T>
-	static void Save(const std::string& location, std::vector<T> vec, char sep)
+	static void Save(const std::string& location, std::vector<T> vec, char sep) 
 	{
 		std::ofstream outputFile(location);
-		for (int i = 0; i < vec.size(); ++i)
+		for (int i = 0; i < vec.size(); ++i) 
 		{
 			outputFile << vec[i] << sep;
 		}
 		outputFile.close();
 	}
-
+	
 	template<typename T>
-	static void Save(const std::string& location, std::vector<T> vec)
+	static void Save(const std::string& location, std::vector<T> vec) 
 	{
 		std::ofstream outputFile(location);
-		for (int i = 0; i < vec.size(); ++i)
+		for (int i = 0; i < vec.size(); ++i) 
 		{
 			outputFile << vec[i];
 		}
