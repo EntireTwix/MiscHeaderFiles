@@ -47,6 +47,7 @@ template <size_t numberOfBits = 8>
                 {
                     IncrementBit(0);
                 }
+                return *this;
             }
 
             //member functions
