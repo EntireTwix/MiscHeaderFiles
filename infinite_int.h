@@ -41,6 +41,14 @@ template <size_t numberOfBits = 8>
             //constructors
             InfiniteInt() { bits.resize(numberOfBits); }
 
+            InfiniteInt operator=(unsigned long long int x)
+            {
+                for(unsigned long long int i = 0; i < x; ++i)
+                {
+                    IncrementBit(0);
+                }
+            }
+
             //member functions
             InfiniteInt operator++() { IncrementBit(0); return *this; }
             InfiniteInt operator--() { DecrementBit(0); return *this; }
