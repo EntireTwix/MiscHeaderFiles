@@ -40,14 +40,14 @@ template <size_t numberOfBits = 8>
         public:
             //constructors
             InfiniteInt() { bits.resize(numberOfBits); }
-            InfiniteInt(unsigned long long int x)  
+            InfiniteInt(unsigned long long int x) : InfiniteInt()
             {
                 for(unsigned long long int i = 0; i < x; ++i)
                 {
                     IncrementBit(0);
                 }
             }
-            InfiniteInt operator=(unsigned long long int x)
+            InfiniteInt operator=(unsigned long long int x) : InfiniteInt()
             {
                 for(unsigned long long int i = 0; i < x; ++i)
                 {
