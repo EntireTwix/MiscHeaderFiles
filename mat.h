@@ -98,6 +98,7 @@ public:
 	}
 	Mat<Type> operator=(const Mat<Type>& m) noexcept
 	{
+		if(members) delete[] members;
 		if (m.members)
 		{
 			members = new Type * [m.size_y];
