@@ -5,7 +5,8 @@
 
 int findPrecision(double x) {
 	assert(x >= 0);
-	for (int i = 0; (x * pow(10, i)) > ((int)(x * pow(10, i))); ++i) { }
+	int i = 0;
+	for (; (x * pow(10, i)) > ((int)(x * pow(10, i))); ++i) { }
 	return ++i;
 }
 
