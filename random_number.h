@@ -16,5 +16,5 @@ double pickNumber(double a, double b) {
 
 	short increment;
 	(findPrecision(a) > findPrecision(b))?increment = pow(10, findPrecision(a)):increment = pow(10, findPrecision(b));
-	(!increment)? return (double)((rand() % ((int)((b - a)  + 1))) + a):return (double)( (rand() % ((int)( ((b-a) * increment) + 1)) ) + (a*increment) )/increment;
+	return(!increment)?(double)((rand() % ((int)((b - a)  + 1))) + a):(double)( (rand() % ((int)( ((b-a) * increment) + 1)) ) + (a*increment) )/increment;
 }
