@@ -6,7 +6,7 @@
 
 class Hoffman final
 {
-private:
+public:
     struct Node
     {
         //constructor
@@ -18,6 +18,7 @@ private:
             leftChild = lc;
             rightChild = rc;
         }
+
 
         //functions
         size_t GetSum(const std::vector<Node>& nodes) const
@@ -64,7 +65,7 @@ private:
 
         int parent = -1, leftChild = -1, rightChild = -1;
     };
-
+private:
     struct NodeComparisonFunctor
     {
         NodeComparisonFunctor(const std::vector<Node>& nodes)
@@ -131,7 +132,7 @@ public:
         return result;
     }
 
-    static std::vector<bool> Compress(const std::string& contents) //for text compression
+    static std::vector<Node> MakeTree(const std::string& contents) //for text compression
     {
         //popullating nodes
         std::vector<Node> nodes;
@@ -165,16 +166,18 @@ public:
         }
         //now the last member of vector is the trees stump, and the first few ${originalSize} members
         
-        std::vector<bool> output, vec;
-        for(auto c : contents)
+        return nodes;
+    }
+    static std::vector<bool> Compress(const std::string& text, const std::vector<Node>& nodes)
+    {
+        std::vector<bool> output;
+        for(auto c : text)
         {
             for(auto n : nodes) 
             {
                 if(n.character == c) 
                 {
-                    vec = n.GetRoute(nodes);
-                    std::reverse(begin(vec), end(vec));
-                    for(auto b : vec)
+                    for(auto b : n.GetRoute(nodes) )
                     {
                         output.push_back(b);
                     }
