@@ -191,5 +191,3 @@ public:
 	unsigned short int month() const { return _month; }
 	unsigned short int year() const { return _year; }
 };
-
-Date CurrentDate() { return Date(((time(NULL) + 57600) / 86400) + 719542); }
