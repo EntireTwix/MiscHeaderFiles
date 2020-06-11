@@ -2,6 +2,8 @@
 #include <vector>
 #include <concepts>
 
+//concepts 
+
 template <typename T>
 concept EqualityComparable = requires(T a, T b) 
 {
@@ -10,15 +12,24 @@ concept EqualityComparable = requires(T a, T b)
 };
 
 template <typename T>
-concept ArithmeticType = requires(T a, T b)
+concept UnaryOperators = requires(T a)
 {
     { a++ } -> std::convertible_to<T>;
     { a-- } -> std::convertible_to<T>;
-    { a+b } -> std::convertible_to<T>;
-    { a-b } -> std::convertible_to<T>;
-    { a*b } -> std::convertible_to<T>;
-    { a/b } -> std::convertible_to<T>;
-    { a%b } -> std::convertible_to<T>;
+};
+
+template <typename T, typename T2 = T, typename T3 = T>
+concept ArithmeticOperators = requires(T a, T2 b)
+{
+    { a+b } -> std::convertible_to<T3>;
+    { a-b } -> std::convertible_to<T3>;
+    { a*b } -> std::convertible_to<T3>;
+    { a/b } -> std::convertible_to<T3>;
+};
+
+template <typename T>
+concept RelationalOperators = requires(T a, T b)
+{
     { a<b } -> std::convertible_to<bool>;
     { a<=b } -> std::convertible_to<bool>;
     { a>b } -> std::convertible_to<bool>;
@@ -27,22 +38,15 @@ concept ArithmeticType = requires(T a, T b)
     { a!=b } -> std::convertible_to<bool>;
 };
 
-template <typename T>
-concept BasicArithmeticType = requires(T a, T b)
-{
-    { a+b } -> std::convertible_to<T>;
-    { a-b } -> std::convertible_to<T>;
-    { a*b } -> std::convertible_to<T>;
-    { a/b } -> std::convertible_to<T>;
-};
+//lifted functions
 
-template <BasicArithmeticType T>
-std::vector<T> Softmax(const std::vector<T>& vec, T multiplier = 1)
+template <ArithmeticOperators T>
+std::vector<double> Softmax(const std::vector<T>& vec, double multiplier = 1)
 {
     T sum{};
-    std::vector<T> res;
+    std::vector<double> res;
     for(T x : vec) sum = sum + x;
-    for(T x : vec) res.push_back(T((x/sum)*multiplier));
+    for(T x : vec) res.push_back((double)((x/sum)*multiplier));
     return res;
 }
 
