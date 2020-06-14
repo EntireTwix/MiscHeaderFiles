@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <concepts>
+#include <type_traits>
 
 //concepts 
 
@@ -34,8 +35,8 @@ concept RelationalOperators = requires(T a, T b)
     { a<=b } -> std::convertible_to<bool>;
     { a>b } -> std::convertible_to<bool>;
     { a>=b } -> std::convertible_to<bool>;
-    { a==b } -> std::convertible_to<bool>;
-    { a!=b } -> std::convertible_to<bool>;
+
+    requires EqualityComparable<T>;
 };
 
 //lifted functions
@@ -45,14 +46,22 @@ std::vector<double> Softmax(const std::vector<T>& vec, double multiplier = 1)
 {
     T sum{};
     std::vector<double> res;
-    for(T x : vec) sum = sum + x;
-    for(T x : vec) res.push_back((double)((x/sum)*multiplier));
+    
+    if constexpr(std::is_fundamental<T>::value) for(T x : vec) sum = sum + x;
+    else for(const T& x : vec) sum = sum + x;
+    
+    if constexpr(std::is_fundamental<T>::value) for(T x : vec) res.push_back((double)((x/sum)*multiplier));
+    else for(const T& x : vec) res.push_back((double)((x/sum)*multiplier));
+
     return res;
 }
 
 template <EqualityComparable T>
 bool Contains(const std::vector<T>& vec, T value)
 {
-    for( T t : vec ) if(t == value) return true;
+    if constexpr(std::is_fundamental<T>::value) for( T t : vec ) if(t == value) return true;
+    else for( const T& t : vec ) if(t == value) return true;
     return false; 
 }
+
+//to-do replace vector with sequence concept
