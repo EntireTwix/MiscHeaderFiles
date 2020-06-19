@@ -2,7 +2,8 @@
 #include <ostream>
 #include "generics.h"
 
-template <int sz = 0, Number Num = float >
+template <size_t sz = 0, Number Num = float >
+requires ArithmeticOperators<Num> && EqualityComparable<Num>
 class Point
 {
 private:
@@ -56,7 +57,6 @@ public:
 	}
 	~Point() { delete[] members; }
 
-	constexpr unsigned size() const { return (sz > 0) ? sz : 0; }
 	friend std::ostream& operator<<(std::ostream& os, const Point<sz, Num>& p)
 	{
 		os << "{ ";
@@ -75,6 +75,48 @@ public:
 	{
 		if (pos >= size() || pos < 0) throw new std::out_of_range("can't index out of size");
 		return members[pos];
+	}
+
+	//arithmetic operators
+	Point<sz, Num> operator+(const Point<sz, Num>& a)
+	{
+		Point<sz, Num> res;
+		for(int i = 0; i < sz; ++i)
+			res[i] = members[i]+a[i];
+		return res;
+	}
+	Point<sz, Num> operator-(const Point<sz, Num>& a)
+	{
+		Point<sz, Num> res;
+		for(int i = 0; i < sz; ++i)
+			res[i] = members[i]-a[i];
+		return res;
+	}
+	Point<sz, Num> operator*(const Point<sz, Num>& a)
+	{
+		Point<sz, Num> res;
+		for(int i = 0; i < sz; ++i)
+			res[i] = members[i]+a[i];
+		return res;
+	}
+	Point<sz, Num> operator/(const Point<sz, Num>& a)
+	{
+		Point<sz, Num> res;
+		for(int i = 0; i < sz; ++i)
+			res[i] = members[i]/a[i];
+		return res;
+	}
+
+	//equality operators
+	bool operator==(const Point<sz, Num>& a)
+	{
+		for(int i = 0; i < size; ++i)
+			if(members[i] != a[i]) return false;
+		return true;
+	}
+	bool operator!=(const Point<sz, Num>& a)
+	{
+		return !(this==a); //god this is so fucking lazy
 	}
 };
 
