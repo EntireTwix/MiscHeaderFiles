@@ -78,28 +78,28 @@ public:
 	}
 
 	//arithmetic operators
-	Point<sz, Num> operator+(const Point<sz, Num>& a)
+	Point<sz, Num> operator+(const Point<sz, Num>& a) const
 	{
 		Point<sz, Num> res;
 		for(int i = 0; i < sz; ++i)
 			res[i] = members[i]+a[i];
 		return res;
 	}
-	Point<sz, Num> operator-(const Point<sz, Num>& a)
+	Point<sz, Num> operator-(const Point<sz, Num>& a) const
 	{
 		Point<sz, Num> res;
 		for(int i = 0; i < sz; ++i)
 			res[i] = members[i]-a[i];
 		return res;
 	}
-	Point<sz, Num> operator*(const Point<sz, Num>& a)
+	Point<sz, Num> operator*(const Point<sz, Num>& a) const
 	{
 		Point<sz, Num> res;
 		for(int i = 0; i < sz; ++i)
 			res[i] = members[i]+a[i];
 		return res;
 	}
-	Point<sz, Num> operator/(const Point<sz, Num>& a)
+	Point<sz, Num> operator/(const Point<sz, Num>& a) const
 	{
 		Point<sz, Num> res;
 		for(int i = 0; i < sz; ++i)
@@ -108,13 +108,13 @@ public:
 	}
 
 	//equality operators
-	bool operator==(const Point<sz, Num>& a)
+	bool operator==(const Point<sz, Num>& a) const
 	{
 		for(int i = 0; i < sz; ++i)
 			if(members[i] != a[i]) return false;
 		return true;
 	}
-	bool operator!=(const Point<sz, Num>& a)
+	bool operator!=(const Point<sz, Num>& a) const
 	{
 		return !(this==a); //god this is so fucking lazy
 	}
