@@ -1,7 +1,8 @@
 #pragma once
 #include <ostream>
+#include "generics.h"
 
-template <int sz = 0, typename Num = float >
+template <int sz = 0, Number Num = float >
 class Point
 {
 private:
@@ -76,11 +77,6 @@ public:
 		return members[pos];
 	}
 };
-
-template <int sz>
-using PointD = Point<sz, double>;	
-template <int sz>
-using PointLD = Point<sz, long double>;
 
 using Point3 = Point<3>;
 using Point2 = Point<2>;
