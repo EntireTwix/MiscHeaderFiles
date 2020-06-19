@@ -7,7 +7,7 @@ requires ArithmeticOperators<Num> && EqualityComparable<Num>
 class Point
 {
 private:
-	Num* members = new Num[size() == 0 ? 1 : size()]{ 0 };
+	Num* members = new Num[sz == 0 ? 1 : sz]{ 0 };
 public:
 	Point() = default;
 	Point(std::initializer_list<Num> list)
@@ -21,7 +21,7 @@ public:
 			++j;
 		}
 
-		if (size() < list.size()) throw std::invalid_argument("list of arguments can't be larger then initilized size");
+		if (sz < list.size()) throw std::invalid_argument("list of arguments can't be larger then initilized size");
 		for (unsigned i = 0; i < list.size(); ++i)
 		{
 			this->members[i] = params[i];
@@ -31,14 +31,14 @@ public:
 	}
 	Point(const Point<sz, Num>& p) noexcept
 	{
-		for (unsigned i = 0; i < p.size(); ++i)
+		for (unsigned i = 0; i < p.sz; ++i)
 		{
 			members[i] = p[i];
 		}
 	}
 	Point<sz, Num> operator=(const Point<sz, Num>& p) noexcept
 	{
-		for (unsigned i = 0; i < p.size(); ++i)
+		for (unsigned i = 0; i < p.sz; ++i)
 		{
 			members[i] = p[i];
 		}
@@ -60,20 +60,20 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Point<sz, Num>& p)
 	{
 		os << "{ ";
-		for (int i = 0; i < p.size(); ++i)
+		for (int i = 0; i < sz; ++i)
 		{
-			os << p[i] << ((i == p.size() - 1) ? " }" : ", ");
+			os << p[i] << ((i == sz - 1) ? " }" : ", ");
 		}
 		return os;
 	}
 	Num& operator[](int pos)
 	{
-		if (pos >= size() || pos < 0) throw new std::out_of_range("can't index out of size");
+		if (pos >= sz || pos < 0) throw new std::out_of_range("can't index out of size");
 		return members[pos];
 	}
 	Num operator[](int pos) const
 	{
-		if (pos >= size() || pos < 0) throw new std::out_of_range("can't index out of size");
+		if (pos >= sz || pos < 0) throw new std::out_of_range("can't index out of size");
 		return members[pos];
 	}
 
@@ -110,7 +110,7 @@ public:
 	//equality operators
 	bool operator==(const Point<sz, Num>& a)
 	{
-		for(int i = 0; i < size; ++i)
+		for(int i = 0; i < sz; ++i)
 			if(members[i] != a[i]) return false;
 		return true;
 	}
