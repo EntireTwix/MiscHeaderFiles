@@ -23,6 +23,7 @@ public:
 	Random() = default;
 	Random(double a, double b)
 	{
+		if( (a < 0) && (b < 0) ) throw std::invalid_argument("numbers must be positive");
 		//setting highest to the higher of the two, and finding offset
 		if(a == b) throw std::out_of_range("first and second argument must be different");
 		else if(a > b) 
@@ -39,7 +40,7 @@ public:
 		//setting offset
 		if(lowest != 0)
 		{
-			offset = lowest*-1;
+			offset = lowest;
 			lowest = 0;
 			highest -= lowest;
 		}
@@ -63,6 +64,6 @@ public:
 
 	double get() const 
 	{
-		return (double)((rand()%(int)(highest))-offset)/precision;	
+		return (double)((rand()%(int)(highest))+offset)/precision;	
 	}
 };
