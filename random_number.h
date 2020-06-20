@@ -1,21 +1,68 @@
 #pragma once
 #include <random>
 #include <ctime>
-#include <assert.h>
+#include <stdexcept>
 
-int findPrecision(double x) {
-	assert(x >= 0);
-	int i = 0;
-	for (; (x * pow(10, i)) > ((int)(x * pow(10, i))); ++i) { }
-	return ++i;
+constexpr unsigned char GetPrecision(double x)
+{
+	unsigned char i = 0;
+	while(x > (int)x)
+	{
+		x*=10;
+		++i;
+	}
+	return i;
 }
 
-/* lowest , highest (both positive)*/
-double pickNumber(double a, double b) {
-	assert((a >= 0) && (b >= 0));
-	assert(a < b);
+class Random final
+{
+private:
+	double lowest = 0, highest = 1, offset = 0;
+	unsigned precision = 0;
+public:
+	Random() = default;
+	Random(double a, double b)
+	{
+		//setting highest to the higher of the two, and finding offset
+		if(a == b) throw std::out_of_range("first and second argument must be different");
+		else if(a > b) 
+		{
+			highest = a;
+			lowest = b;
+		}
+		else if(b > a)
+		{
+			highest = b;
+			lowest = a;
+		}
 
-	short increment;
-	(findPrecision(a) > findPrecision(b))?increment = pow(10, findPrecision(a)):increment = pow(10, findPrecision(b));
-	return(!increment)?(double)((rand() % ((int)((b - a)  + 1))) + a):(double)( (rand() % ((int)( ((b-a) * increment) + 1)) ) + (a*increment) )/increment;
-}
+		//setting offset
+		if(lowest != 0)
+		{
+			offset = lowest*-1;
+			lowest = 0;
+			highest -= lowest;
+		}
+
+		//finding out global precision 
+		unsigned char pLow = GetPrecision(lowest), pHigh = GetPrecision(highest);
+		if(pLow == pHigh)
+			precision = pLow;
+		else if(pLow > pHigh)
+			precision = pLow;
+		else if(pHigh > pLow)
+			precision = pHigh;
+		
+		precision = std::pow(10, precision+1);
+
+		//turning double into ints basically
+		highest*=precision;
+		lowest*=precision;
+		offset*=precision;
+	} 
+
+	double get() const 
+	{
+		return (double)((rand()%(int)(highest))-offset)/precision;	
+	}
+};
