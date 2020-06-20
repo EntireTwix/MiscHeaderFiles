@@ -1,6 +1,7 @@
 #pragma once
 #include <limits.h>
 #include <ostream>
+#include <stdexcept>
 
 class udouble
 {
@@ -13,11 +14,13 @@ public:
     udouble() = default;
     udouble(double x)
     {
-        d = x>=0?x:0;
+        if(x<0) throw std::invalid_argument("x must be positive");
+        d = x;
     }
 
     //functions
     friend std::ostream& operator<<(std::ostream& os, const udouble& ud) { return std::cout<<ud.d; }
+    explicit operator double() const { return d; }
     
     udouble operator++() { return (d==__DBL_MAX__)?throw std::out_of_range("unsigned double overflowed"):d+=1; }
     udouble operator--() { return (d>0)?d-=1:throw std::out_of_range("unsigned double can not be negative"); }
