@@ -17,8 +17,8 @@ constexpr unsigned char GetPrecision(double x)
 class Random final
 {
 private:
-	double lowest = 0, highest = 1, offset = 0;
-	unsigned precision = 0;
+	double lowest = 0, highest = 10, offset = 0;
+	unsigned precision = 10;
 public:
 	Random() = default;
 	Random(double a, double b)
