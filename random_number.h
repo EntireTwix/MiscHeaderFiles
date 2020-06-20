@@ -23,7 +23,7 @@ public:
 	Random() = default;
 	Random(double a, double b)
 	{
-		if( (a < 0) && (b < 0) ) throw std::invalid_argument("numbers must be positive");
+		if( (a < 0) || (b < 0) ) throw std::invalid_argument("numbers must be positive");
 		//setting highest to the higher of the two, and finding offset
 		if(a == b) throw std::out_of_range("first and second argument must be different");
 		else if(a > b) 
