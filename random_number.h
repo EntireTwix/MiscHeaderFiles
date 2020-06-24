@@ -21,7 +21,7 @@ private:
 	unsigned precision = 10;
 public:
 	Random() = default;
-	Random(double a, double b)
+	Random(double a, double b, unsigned p = 1)
 	{
 		if( (a < 0) || (b < 0) ) throw std::invalid_argument("numbers must be positive");
 		//setting highest to the higher of the two, and finding offset
@@ -44,17 +44,8 @@ public:
 			lowest = 0;
 			highest -= lowest;
 		}
-
-		//finding out global precision 
-		unsigned char pLow = GetPrecision(lowest), pHigh = GetPrecision(highest);
-		if(pLow == pHigh)
-			precision = pLow;
-		else if(pLow > pHigh)
-			precision = pLow;
-		else if(pHigh > pLow)
-			precision = pHigh;
 		
-		precision = std::pow(10, precision+1);
+		precision = std::pow(10, p);
 
 		//turning double into ints basically
 		highest*=precision;
