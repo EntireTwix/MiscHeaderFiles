@@ -17,11 +17,10 @@ constexpr unsigned char GetPrecision(double x)
 class Random final
 {
 private:
-	double lowest = 0, highest = 10, offset = 0;
-	unsigned precision = 10;
+	unsigned lowest = 0, highest = 1, offset = 0;
 public:
 	Random() = default;
-	Random(double a, double b, unsigned p = 1)
+	Random(unsigned a, unsigned b)
 	{
 		if( (a < 0) || (b < 0) ) throw std::invalid_argument("numbers must be positive");
 		//setting highest to the higher of the two, and finding offset
@@ -44,17 +43,10 @@ public:
 			lowest = 0;
 			highest -= lowest;
 		}
-		
-		precision = std::pow(10, p);
-
-		//turning double into ints basically
-		highest*=precision;
-		lowest*=precision;
-		offset*=precision;
 	} 
 
-	double get() const 
+	unsigned get() const 
 	{
-		return (double)((rand()%(int)(highest))+offset)/precision;	
+		return (double)((rand()%(int)(highest))+offset);	
 	}
 };
