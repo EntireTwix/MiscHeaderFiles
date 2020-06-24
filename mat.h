@@ -118,18 +118,19 @@ public:
 	}
 
 	//at function
-	Type& at(size_t x, size_t y)
+	Type& at(size_t y, size_t x)
 	{
 		if (x >= size_x || x < 0) throw std::out_of_range("x is out of range");
 		if (y >= size_y || y < 0) throw std::out_of_range("y is out of range");
 		return members[y][x];
 	}
-	Type at(size_t x, size_t y) const
+	Type at(size_t y, size_t x) const
 	{
 		if (x >= size_x || x < 0) throw std::out_of_range("x is out of range");
 		if (y >= size_y || y < 0) throw std::out_of_range("y is out of range");
 		return members[y][x];
 	}
+
 	size_t sizeX() const { return size_x; }
 	size_t sizeY() const { return size_y; }
 
@@ -146,5 +147,8 @@ public:
 		return os<<'\n';
 	}
 
-	~Mat() { delete[] members;  }
+	~Mat() { delete[] members; }
 };
+
+//add find func
+//add iterator
