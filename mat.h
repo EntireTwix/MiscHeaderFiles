@@ -51,7 +51,7 @@ public:
 		members = new Type * [y];
 		for (int i = 0; i < y; ++i)
 		{
-			members[i] = new Type[x];
+			members[i] = new Type[x]{Type()};
 		}
 
 		//update to size
@@ -147,6 +147,4 @@ public:
 	}
 
 	~Mat() { delete[] members;  }
-	
-
 };
