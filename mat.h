@@ -129,18 +129,33 @@ public:
 		if (x >= size_x || x < 0) throw std::out_of_range("x is out of range");
 		if (y >= size_y || y < 0) throw std::out_of_range("y is out of range");
 		return members[y][x];
+	}	
+
+	void ApplyFunction(void (*func)(Type&))
+	{
+		for(size_t i = 0; i < sizeY(); ++i)
+		for(size_t j = 0; j < sizeX(); ++j)
+			func(at(i, j));
 	}
 
+	template <typename... Params>
+	void ApplyFunction(void (*func)(Type&, Params...), Params... p)
+	{
+		for(size_t i = 0; i < sizeY(); ++i)
+		for(size_t j = 0; j < sizeX(); ++j)
+			func(at(i, j), p...);
+	}
+	
 	size_t sizeX() const { return size_x; }
 	size_t sizeY() const { return size_y; }
 
 	friend std::ostream& operator<<(std::ostream& os, const Mat& m)
 	{
-		for (int i = 0; i < m.sizeY(); ++i)
+		for (size_t i = 0; i < m.sizeY(); ++i)
 		{
-			for (int j = 0; j < m.sizeX(); ++j)
+			for (size_t j = 0; j < m.sizeX(); ++j)
 			{
-				os<<m.at(j, i)<<' ';
+				os<<m.at(i, j)<<' ';
 			}
 			os << '\n';
 		}
