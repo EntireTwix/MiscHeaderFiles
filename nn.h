@@ -5,21 +5,13 @@
 #include <thread>
 #include "mat.h"
 
-//use std::uniform_real_distribution<>
-
-bool IsDone(std::shared_ptr<bool[]> bools, size_t range)
-{
-    for(size_t i = 0; i < range; ++i)
-        if(!bools[i]) return false;
-
-    return true;
-}
-
 class NeuralNetwork
 {
 private:
     Mat<double>* layers = nullptr;
+    double learningRate = 0;
     size_t size = 0; //possibly irrelevant variable
+
     std::unique_ptr< Mat<double>[] > MakeCopy() const
     {
         std::unique_ptr< Mat<double>[] > net = std::make_unique< Mat<double>[]>(size); //smart pointers gang
@@ -32,19 +24,20 @@ private:
         }
         return net;
     }
-    void ForwardProp(const Mat<double>& input, std::shared_ptr<Mat<double> > returnVal, std::shared_ptr<bool> done, size_t i) const //for each thread to run async
+    template <typename... Params, Number T>
+    void AddLayer(size_t loc, T sz, Params... p)
     {
-        std::cout<<"+Thread "<<i<<" has started";
-        std::unique_ptr< Mat<double>[] > currentMat = MakeCopy();
-        //do stuff
-        *returnVal = currentMat[size-1];
-        *done = true;
-        std::cout<<"-Thread "<<i<<" has ended";
+        layers[loc] = Mat<double>(sz, layers[loc-1].sizeX()); //weight
+        layers[loc+1] = Mat<double>(sz, 1); //biases
+        layers[loc+2] = Mat<double>(sz, 1); //activations
+        loc+=3;
+        if constexpr(sizeof...(p)) AddLayer(loc, p...);
     }
 public: 
     template <typename... Params>
-    NeuralNetwork(size_t first, Params ...p)
+    NeuralNetwork(double lr, size_t first, Params ...p) : learningRate((double)lr)
     {
+        if(lr<=0) throw std::invalid_argument("learning rate must be positive");  
         //making layers
         size = ((sizeof...(p))*3)+1;
         layers = new Mat<double>[size];
@@ -63,56 +56,27 @@ public:
         }
 
         //for debugging
+        std::cout<<"Network being constructed\n";
         for(size_t i = 0; i < size; ++i)
             std::cout<<layers[i]<<'\n';
     }
 
-    template <typename... Params, Number T>
-    void AddLayer(size_t loc, T sz, Params... p)
+    Mat<double> ForwardProp(const Mat<double>& input) const //returns output for given input
     {
-        layers[loc] = Mat<double>(sz, layers[loc-1].sizeX()); //weight
-        layers[loc+1] = Mat<double>(sz, 1); //biases
-        layers[loc+2] = Mat<double>(sz, 1); //activations
-        loc+=3;
-        if constexpr(sizeof...(p)) AddLayer(loc, p...);
-    }
-    Mat<double> ForwardProp(const Mat<double>& input) const //returns prediction
-    {
+        if( (input.sizeX() != layers[0].sizeX()) || (input.sizeY() != layers[0].sizeY()) ) throw std::invalid_argument("inputs must be the same dimensions as first layer");
         std::unique_ptr< Mat<double>[] > currentMat = MakeCopy();
-        //do stuff
+
         return currentMat[size-1];
     }
-    template <size_t sampleSize = 1>
-    std::shared_ptr< Mat<double>[] > ForwardProp(std::unique_ptr< Mat<double>[] > inputs) //returns sample size of predicted outputs
-    {
-        if constexpr(sampleSize<=1) throw std::invalid_argument("sample size must be higher then 1");
-        
-        //make {sampleSize} amount of threads
-        std::unique_ptr< std::thread[] > threads = std::make_unique< std::thread[] >(sampleSize);
-        std::shared_ptr< Mat<double>[] > results = std::shared_ptr< Mat<double>[] >(sampleSize);
-        std::shared_ptr< bool[] > dones = std::shared_ptr<bool[]>(sampleSize);
-        for(size_t i = 0; i < sampleSize; ++i)
-            threads[i] = std::thread(ForwardProp, inputs[i], results[i], dones[i], i);
-
-        //continually check if all threads are done
-        while(!IsDone(dones, sampleSize) ) { }
-        for(size_t i = 0; i < sampleSize; ++i)
-            threads[i].join();
-
-        return results;
-    }
     /*
-    static Mat<double> Cost() //gets cost of prediction
+    static Mat<double> Cost(const Mat<double>& result, const Mat<double>& desired) //gets cost of prediction
     {
+        if( (result.sizeX() != desired.sizeX()) || (result.sizeY() != desired.sizeY()) ) throw std::invalid_argument("result and desired matrices must have the same dimensions");
 
     }
     */
+    
     //add back prop
 
-    ~NeuralNetwork()
-    {
-        delete[] layers;
-    }
+    ~NeuralNetwork(){ delete[] layers; }
 };
-
-//add activation func
