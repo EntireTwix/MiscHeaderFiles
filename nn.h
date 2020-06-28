@@ -1,8 +1,8 @@
 #pragma once
-#include <iostream> //to  be removed
 #include <random>
 #include <memory>
 #include <thread>
+#include <cmath>
 #include "mat.h"
 
 class NeuralNetwork
@@ -10,20 +10,11 @@ class NeuralNetwork
 private:
     Mat<double>* layers = nullptr;
     double learningRate = 0;
-    size_t size = 0; //possibly irrelevant variable
+    size_t size = 0;
+    double (*cost)(double a, double b);
+    double (*activation)(double x);
+    double (*activation_p)(double x);
 
-    std::unique_ptr< Mat<double>[] > MakeCopy() const
-    {
-        std::unique_ptr< Mat<double>[] > net = std::make_unique< Mat<double>[]>(size); //smart pointers gang
-        for(size_t i = 0; i < size; ++i)
-        {
-            net[i] = Mat<double>(layers[i].sizeX(), layers[i].sizeY());
-            for(size_t j = 0; j < layers[i].sizeY(); ++j)
-            for(size_t k = 0; k < layers[i].sizeX(); ++k)
-                net[i].at(j, k) = layers[i].at(j, k);
-        }
-        return net;
-    }
     template <typename... Params, Number T>
     void AddLayer(size_t loc, T sz, Params... p)
     {
@@ -34,8 +25,9 @@ private:
         if constexpr(sizeof...(p)) AddLayer(loc, p...);
     }
 public: 
+    NeuralNetwork() = delete;
     template <typename... Params>
-    NeuralNetwork(double lr, size_t first, Params ...p) : learningRate((double)lr)
+    NeuralNetwork(double lr, double (*cost)(double,double), double (*act)(double), double (*act_p)(double), size_t first, Params ...p) : learningRate((double)lr), cost(cost), activation(act), activation_p(act_p)
     {
         if(lr<=0) throw std::invalid_argument("learning rate must be positive");  
         //making layers
@@ -54,29 +46,42 @@ public:
             for(size_t k = 0; k < layers[i].sizeX(); ++k)
                 layers[i].at(j, k) = dis(gen);
         }
-
-        //for debugging
-        std::cout<<"Network being constructed\n";
-        for(size_t i = 0; i < size; ++i)
-            std::cout<<layers[i]<<'\n';
     }
 
     Mat<double> ForwardProp(const Mat<double>& input) const //returns output for given input
     {
         if( (input.sizeX() != layers[0].sizeX()) || (input.sizeY() != layers[0].sizeY()) ) throw std::invalid_argument("inputs must be the same dimensions as first layer");
-        std::unique_ptr< Mat<double>[] > currentMat = MakeCopy();
+        //loading in network state
+        std::unique_ptr< Mat<double>[] > currentMat = std::make_unique< Mat<double>[]>(size); //smart pointers gang
+        for(size_t i = 0; i < size; ++i)
+        {
+            currentMat[i] = Mat<double>(layers[i].sizeX(), layers[i].sizeY());
+            for(size_t j = 0; j < layers[i].sizeY(); ++j)
+            for(size_t k = 0; k < layers[i].sizeX(); ++k)
+                currentMat[i].at(j, k) = layers[i].at(j, k);
+        }
 
+        //forward propogating
+        currentMat[0] = input;
+        for(size_t i = 0; i < size-1; i+=3)
+            currentMat[i+3]=activation(((currentMat[i].dot(currentMat[i+1]))+currentMat[i+2])); //H = (I dot W1)+B
+        
         return currentMat[size-1];
     }
-    /*
-    static Mat<double> Cost(const Mat<double>& result, const Mat<double>& desired) //gets cost of prediction
-    {
-        if( (result.sizeX() != desired.sizeX()) || (result.sizeY() != desired.sizeY()) ) throw std::invalid_argument("result and desired matrices must have the same dimensions");
 
+    size_t Size() const { return size; }
+    static Mat<double> Cost(const Mat<double>& result, const Mat<double>& desired) const //gets cost of prediction
+    {
+        return result.op(desired, cost);
     }
-    */
     
     //add back prop
 
-    ~NeuralNetwork(){ delete[] layers; }
+    ~NeuralNetwork()
+    { 
+        delete[] layers; 
+        delete cost; 
+        delete activation; 
+        delete activation_p;
+    }
 };
