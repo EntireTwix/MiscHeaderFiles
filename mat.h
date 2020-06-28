@@ -17,7 +17,7 @@ public:
 		size_t last = 0, i = 0;
 		for (auto vec : list)
 		{
-			if( (vec.size() != last) && (i != 0) ) throw std::invalid_argument("width has to be a constant in the Matrix");
+			if( (vec.size() != last) && (i != 0) ) throw std::invalid_argument("Mat(list{{list}}):width has to be a constant in the Matrix");
 			last = vec.size();
 			++i;
 		}
@@ -45,7 +45,7 @@ public:
 	}
 	explicit Mat(int x, int y)
 	{
-		if ((x < 1) || (y < 1)) throw std::invalid_argument("both x and y must be positive");
+		if ((x < 1) || (y < 1)) throw std::invalid_argument("Mat(x,y):both x and y must be positive");
 
 		//make Matrix
 		members = new Type * [y];
@@ -120,18 +120,18 @@ public:
 	//at function
 	Type& at(size_t y, size_t x)
 	{
-		if (x >= size_x || x < 0) throw std::out_of_range("x is out of range");
-		if (y >= size_y || y < 0) throw std::out_of_range("y is out of range");
+		if (x >= size_x || x < 0) throw std::out_of_range("at&:x is out of range "+std::to_string(x));
+		if (y >= size_y || y < 0) throw std::out_of_range("at&:y is out of range "+std::to_string(y));
 		return members[y][x];
 	}
 	Type at(size_t y, size_t x) const
 	{
-		if (x >= size_x || x < 0) throw std::out_of_range("x is out of range");
-		if (y >= size_y || y < 0) throw std::out_of_range("y is out of range");
+		if (x >= size_x || x < 0) throw std::out_of_range("at:x is out of range "+std::to_string(x));
+		if (y >= size_y || y < 0) throw std::out_of_range("at:y is out of range "+std::to_string(y));
 		return members[y][x];
 	}	
 
-	void ApplyFunction(void (*func)(Type&))
+	void ApplyFunction(void (*func)(Type&)) //for each
 	{
 		for(size_t i = 0; i < sizeY(); ++i)
 		for(size_t j = 0; j < sizeX(); ++j)
@@ -139,7 +139,7 @@ public:
 	}
 
 	template <typename... Params>
-	void ApplyFunction(void (*func)(Type&, Params...), Params... p)
+	void ApplyFunction(void (*func)(Type&, Params...), Params... p) //for each
 	{
 		for(size_t i = 0; i < sizeY(); ++i)
 		for(size_t j = 0; j < sizeX(); ++j)
@@ -148,6 +148,42 @@ public:
 	
 	size_t sizeX() const { return size_x; }
 	size_t sizeY() const { return size_y; }
+
+	Mat<Type> dot(const Mat<Type>& mat) const
+	{
+		Mat<Type> res(mat.sizeX(), sizeY()); //product dimensions are the x of both mats
+		Type amount;
+		for(size_t i = 0; i < sizeY(); ++i) //for each y on the A matrix 
+		for(size_t j = 0; j < mat.sizeX(); ++j) //for each x on the B matrix 
+		{
+			amount = 0;
+			for(int k = 0; k < sizeX(); ++k) //is equivelant to mat.sizeY() 
+				amount+=at(i, k)*mat.at(k, j); 
+			res.at(i, j) = amount;
+		}
+		return res;
+	}
+	Mat<Type> operator+(const Mat<Type>& mat) const
+	{
+		if( (mat.sizeX() > sizeX()) || (mat.sizeY() > sizeY()) ) throw std::invalid_argument("operator+:matrix being added must be less then or equal dimensions");
+		Mat<Type> res(sizeX(), sizeY());
+
+		for(size_t i = 0; i < mat.sizeY(); ++i)
+		for(size_t j = 0; j < mat.sizeX(); ++j)
+			res.at(i, j) = at(i, j)+mat.at(i, j);
+		return res;
+ 	}
+	Mat<Type> op(const Mat<Type>& mat, Type (*func)(Type a, Type b)) const //general operations func
+	{
+		if( (mat.sizeX() != sizeX()) || (mat.sizeY() != sizeY()) ) throw std::invalid_argument("op:matrix being added must be less then or equal dimensions");
+		Mat<Type> res(sizeX(), sizeY());
+		for(size_t i = 0; i < sizeY(); ++i)
+		for(size_t j = 0; j < sizeX(); ++j)
+		{
+			res(i, j) = func(at(i, j), mat.at(i, j));
+		}
+		return res;
+	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Mat& m)
 	{
@@ -159,7 +195,7 @@ public:
 			}
 			os << '\n';
 		}
-		return os<<'\n';
+		return os;
 	}
 
 	~Mat() { delete[] members; }
