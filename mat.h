@@ -131,19 +131,19 @@ public:
 		return members[y][x];
 	}	
 
-	void ApplyFunction(void (*func)(Type&)) //for each
+	void ApplyFunction(Type (*func)(Type)) //for each
 	{
 		for(size_t i = 0; i < sizeY(); ++i)
 		for(size_t j = 0; j < sizeX(); ++j)
-			func(at(i, j));
+			at(i, j) = func(at(i, j));
 	}
 
 	template <typename... Params>
-	void ApplyFunction(void (*func)(Type&, Params...), Params... p) //for each
+	void ApplyFunction(Type (*func)(Type, Params...), Params... p) //for each
 	{
 		for(size_t i = 0; i < sizeY(); ++i)
 		for(size_t j = 0; j < sizeX(); ++j)
-			func(at(i, j), p...);
+			at(i, j) = func(at(i, j), p...);
 	}
 	
 	size_t sizeX() const { return size_x; }
@@ -180,7 +180,7 @@ public:
 		for(size_t i = 0; i < sizeY(); ++i)
 		for(size_t j = 0; j < sizeX(); ++j)
 		{
-			res(i, j) = func(at(i, j), mat.at(i, j));
+			res.at(i, j) = func(at(i, j), mat.at(i, j));
 		}
 		return res;
 	}
