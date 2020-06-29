@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <random>
 #include <memory>
 #include <thread>
@@ -49,7 +50,7 @@ public:
         }
     }
 
-    Mat<double> ForwardProp(const Mat<double>& input) const //returns output for given input
+    Mat<double> ForwardProp(const Mat<double>& input) const //returns output for given input (without activation)
     {
         if( (input.sizeX() != layers[0].sizeX()) || (input.sizeY() != layers[0].sizeY()) ) throw std::invalid_argument("inputs must be the same dimensions as first layer");
         //loading in network state
@@ -67,20 +68,28 @@ public:
         for(size_t i = 0; i < size-1; i+=3)
         {
             currentMat[i+3] = ((currentMat[i].dot(currentMat[i+1]))+currentMat[i+2]); //H = (I dot W1)+B
-            currentMat[i+3].ApplyFunction(activation);
+            if(i+3!=(size-1)) currentMat[i+3] = currentMat[i+3].ApplyFunction(activation);
         }
+
+        for(size_t i = 0; i < Size(); ++i)
+            std::cout<<currentMat[i]<<'\n';
         
         return currentMat[size-1];
     }
 
     size_t Size() const { return size; }
-    Mat<double> Cost(const Mat<double>& result, const Mat<double>& desired) const //gets cost of prediction
+    Mat<double> Cost(const Mat<double>& result, const Mat<double>& anwser) const //gets cost of activation(prediction)
     {
-        return result.op(desired, cost);
+        return result.op(anwser, cost);
+    }
+
+    void BackProp(const Mat<double>& anwser, Mat<double> prediction) //initially (cost')*Activation'(output)
+    {
+        //check cost dimensions
+        //hella incomplete function
+        prediction.op(anwser, cost_p)*prediction.ApplyFunction(activation_p);
     }
     
-    //add back prop
-
     ~NeuralNetwork()
     { 
         delete[] layers; 
@@ -88,3 +97,4 @@ public:
 };
 
 //add multi-threading forward prop for sampling
+//add back prop
