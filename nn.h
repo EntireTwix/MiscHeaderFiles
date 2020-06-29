@@ -11,9 +11,10 @@ private:
     Mat<double>* layers = nullptr;
     double learningRate = 0;
     size_t size = 0;
-    double (*cost)(double a, double b);
-    double (*activation)(double x);
-    double (*activation_p)(double x);
+    double (*cost)(double,double);
+    double (*cost_p)(double,double);
+    double (*activation)(double);
+    double (*activation_p)(double);
 
     template <typename... Params, Number T>
     void AddLayer(size_t loc, T sz, Params... p)
@@ -27,7 +28,7 @@ private:
 public: 
     NeuralNetwork() = delete;
     template <typename... Params>
-    NeuralNetwork(double lr, double (*cost)(double,double), double (*act)(double), double (*act_p)(double), size_t first, Params ...p) : learningRate((double)lr), cost(cost), activation(act), activation_p(act_p)
+    NeuralNetwork(double lr, double (*cost)(double,double), double (*cost_p)(double,double), double (*act)(double), double (*act_p)(double), size_t first, Params ...p) : learningRate((double)lr), cost(cost), cost_p(cost_p), activation(act), activation_p(act_p)
     {
         if(lr<=0) throw std::invalid_argument("learning rate must be positive");  
         //making layers
@@ -64,13 +65,16 @@ public:
         //forward propogating
         currentMat[0] = input;
         for(size_t i = 0; i < size-1; i+=3)
-            currentMat[i+3]=activation(((currentMat[i].dot(currentMat[i+1]))+currentMat[i+2])); //H = (I dot W1)+B
+        {
+            currentMat[i+3] = ((currentMat[i].dot(currentMat[i+1]))+currentMat[i+2]); //H = (I dot W1)+B
+            currentMat[i+3].ApplyFunction(activation);
+        }
         
         return currentMat[size-1];
     }
 
     size_t Size() const { return size; }
-    static Mat<double> Cost(const Mat<double>& result, const Mat<double>& desired) const //gets cost of prediction
+    Mat<double> Cost(const Mat<double>& result, const Mat<double>& desired) const //gets cost of prediction
     {
         return result.op(desired, cost);
     }
@@ -80,8 +84,7 @@ public:
     ~NeuralNetwork()
     { 
         delete[] layers; 
-        delete cost; 
-        delete activation; 
-        delete activation_p;
     }
 };
+
+//add multi-threading forward prop for sampling
