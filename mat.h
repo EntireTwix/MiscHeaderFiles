@@ -129,21 +129,22 @@ public:
 		if (x >= size_x || x < 0) throw std::out_of_range("at:x is out of range "+std::to_string(x));
 		if (y >= size_y || y < 0) throw std::out_of_range("at:y is out of range "+std::to_string(y));
 		return members[y][x];
-	}	
-
-	void ApplyFunction(Type (*func)(Type)) //for each
+	}
+	Mat<Type> ApplyFunction(Type (*func)(Type)) //for each
 	{
 		for(size_t i = 0; i < sizeY(); ++i)
 		for(size_t j = 0; j < sizeX(); ++j)
 			at(i, j) = func(at(i, j));
+		return *this;
 	}
 
 	template <typename... Params>
-	void ApplyFunction(Type (*func)(Type, Params...), Params... p) //for each
+	Mat<Type> ApplyFunction(Type (*func)(Type, Params...), Params... p) //for each
 	{
 		for(size_t i = 0; i < sizeY(); ++i)
 		for(size_t j = 0; j < sizeX(); ++j)
 			at(i, j) = func(at(i, j), p...);
+		return *this;
 	}
 	
 	size_t sizeX() const { return size_x; }
@@ -173,7 +174,17 @@ public:
 			res.at(i, j) = at(i, j)+mat.at(i, j);
 		return res;
  	}
-	Mat<Type> op(const Mat<Type>& mat, Type (*func)(Type a, Type b)) const //general operations func
+	Mat<Type> operator*(const Mat<Type>& mat) const
+	{
+		if( (mat.sizeX() > sizeX()) || (mat.sizeY() > sizeY()) ) throw std::invalid_argument("operator*:matrix being added must be less then or equal dimensions");
+		Mat<Type> res(sizeX(), sizeY());
+
+		for(size_t i = 0; i < mat.sizeY(); ++i)
+		for(size_t j = 0; j < mat.sizeX(); ++j)
+			res.at(i, j) = at(i, j)*mat.at(i, j);
+		return res;
+	}
+	Mat<Type> op(const Mat<Type>& mat, Type (*func)(Type a, Type b)) const //apply function for interacting with another matrix
 	{
 		if( (mat.sizeX() != sizeX()) || (mat.sizeY() != sizeY()) ) throw std::invalid_argument("op:matrix being added must be less then or equal dimensions");
 		Mat<Type> res(sizeX(), sizeY());
