@@ -18,13 +18,24 @@ private:
     double (*activation_p)(double);
 
     template <typename... Params, Number T>
-    void AddLayer(size_t loc, T sz, Params... p)
+    size_t AddLayer(size_t loc, T sz, Params... p)
     {
         layers[loc] = Mat<double>(sz, layers[loc-1].sizeX()); //weight
-        layers[loc+1] = Mat<double>(sz, 1); //biases
-        layers[loc+2] = Mat<double>(sz, 1); //activations
-        loc+=3;
-        if constexpr(sizeof...(p)) AddLayer(loc, p...);
+        if(sizeof...(p)) //if last
+        {
+            layers[loc+1] = Mat<double>(sz, 1); //biases
+            layers[loc+2] = Mat<double>(sz, 1); //activations
+            loc+=3;
+        }
+        else
+        {
+            layers[loc+1] = Mat<double>(sz, 1); //activations
+            loc+=2;
+        }
+        
+
+        if constexpr(sizeof...(p)) return AddLayer(loc, p...);
+        return sz;
     }
 public: 
     NeuralNetwork() = delete;
@@ -33,11 +44,11 @@ public:
     {
         if(lr<=0) throw std::invalid_argument("learning rate must be positive");  
         //making layers
-        size = ((sizeof...(p))*3)+1;
+        size = ((sizeof...(p))*3);
         layers = new Mat<double>[size];
         layers[0] = Mat<double>(first, 1); 
         AddLayer(1, p...);
-
+        
         //initilizing weights
         std::random_device rd; 
         std::mt19937 gen(rd()); 
@@ -47,7 +58,7 @@ public:
             for(size_t j = 0; j < layers[i].sizeY(); ++j)
             for(size_t k = 0; k < layers[i].sizeX(); ++k)
                 layers[i].at(j, k) = dis(gen);
-        }
+        }     
     }
 
     Mat<double> ForwardProp(const Mat<double>& input) const //returns output for given input (without activation)
@@ -56,24 +67,20 @@ public:
         //loading in network state
         std::unique_ptr< Mat<double>[] > currentMat = std::make_unique< Mat<double>[]>(size); //smart pointers gang
         for(size_t i = 0; i < size; ++i)
-        {
-            currentMat[i] = Mat<double>(layers[i].sizeX(), layers[i].sizeY());
-            for(size_t j = 0; j < layers[i].sizeY(); ++j)
-            for(size_t k = 0; k < layers[i].sizeX(); ++k)
-                currentMat[i].at(j, k) = layers[i].at(j, k);
-        }
+            currentMat[i] = layers[i];
+        
 
         //forward propogating
         currentMat[0] = input;
-        for(size_t i = 0; i < size-1; i+=3)
+        for(size_t i = 0; i < size; i+=3)
         {
             currentMat[i+3] = ((currentMat[i].dot(currentMat[i+1]))+currentMat[i+2]); //H = (I dot W1)+B
-            if(i+3!=(size-1)) currentMat[i+3] = currentMat[i+3].ApplyFunction(activation);
+            currentMat[i+3] = currentMat[i+3].ApplyFunction(activation);
         }
 
-        for(size_t i = 0; i < Size(); ++i)
-            std::cout<<currentMat[i]<<'\n';
-        
+        for(size_t i = 0; i < size; ++i)
+            std::cout<<layers[i]<<'\n';
+
         return currentMat[size-1];
     }
 
@@ -82,12 +89,19 @@ public:
     {
         return result.op(anwser, cost);
     }
-
-    void BackProp(const Mat<double>& anwser, Mat<double> prediction) //initially (cost')*Activation'(output)
+    void BackProp(const Mat<double>& anwser, const Mat<double>& prediction) const //initially (cost')*Activation'(output)
     {
         //check cost dimensions
-        //hella incomplete function
-        prediction.op(anwser, cost_p)*prediction.ApplyFunction(activation_p);
+
+        //loading in network state
+        std::unique_ptr< Mat<double>[] > currentMat = std::make_unique< Mat<double>[]>(size); //smart pointers gang
+        for(size_t i = 0; i < size; ++i)
+            currentMat[i] = Mat<double>(layers[i].sizeX(), layers[i].sizeY());
+
+        Mat<double> lastMeme = prediction.op(anwser, cost_p)*prediction.ApplyFunction(activation_p);
+        std::cout<<"Raw Cost:"<<lastMeme;
+
+        //printing
     }
     
     ~NeuralNetwork()
