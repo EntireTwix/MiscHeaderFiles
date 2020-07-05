@@ -60,7 +60,7 @@ public:
         }
         nextIndex = nextIndex==(threadCount-1)?0:nextIndex+1;
     }
-    size_t JobsLeft() //broken
+    size_t JobsLeft()
     {
         size_t sum = 0;
         for(uint_fast8_t i = 0; i < threadCount; ++i)
