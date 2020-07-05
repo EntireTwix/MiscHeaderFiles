@@ -100,8 +100,5 @@ public:
     ~ThreadPool()
     {
         stop();
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
-            if(workers[i].joinable()) workers[i].join();
-        //std::cout<<"Deconstructed\n";
     }
 };
