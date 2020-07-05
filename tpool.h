@@ -22,26 +22,26 @@ public:
     {
         for(uint_fast8_t i = 0; i < threadCount; ++i)
             workers[i] = std::thread([this,i](){
-                    while(1)
+                    while(!stopped)
                     {                        
-                        if(!paused)
-                        {
+                    
                             std::function<void()> job;
                             //std::cout<<"Thread "<<(int)i+1<<" is running\n";
                             
                             {
                                 std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //when its this threads turn
                                 //if((!jobs[i].empty() || stopped)) std::cout<<"waiting\n";
-                                if(stopped) break;
                                 jobListener[i].wait(jobsAccess, [this,i](){ return !(jobs[i].empty() || stopped); } );
-
+                            }
+                        
+                            if(!paused)
+                            {
                                 //std::cout<<"working\n";
                                 job = jobs[i].front();
                                 jobs[i].pop();
+                                job();
                             }
-                            job();
                         
-                        }
                         //else std::cout<<"Thread "<<(int)i+1<<" is paused\n";
                     }
             });
@@ -65,6 +65,7 @@ public:
         size_t sum = 0;
         for(uint_fast8_t i = 0; i < threadCount; ++i)
         {
+            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //when its this threads turn
             sum += jobs[i].size();
         }
         return sum;
@@ -72,20 +73,35 @@ public:
 
     void start() 
     {
-        paused = false;
+        for(uint_fast8_t i = 0; i < threadCount; ++i)
+        {
+            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //when its this threads turn
+            paused = false;
+        }
     }
     void pause()
     {
-        paused = true;
+        for(uint_fast8_t i = 0; i < threadCount; ++i)
+        {
+            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //when its this threads turn
+            paused = true;
+        }
     }
     void stop()
     {
-        stopped = true;
+        for(uint_fast8_t i = 0; i < threadCount; ++i)
+        {
+            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //when its this threads turn
+            stopped = true;
+        }
     }
     
 
     ~ThreadPool()
     {
         stop();
+        for(uint_fast8_t i = 0; i < threadCount; ++i)
+            if(workers[i].joinable()) workers[i].join();
+        //std::cout<<"Deconstructed\n";
     }
 };
