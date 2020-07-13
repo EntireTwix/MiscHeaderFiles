@@ -6,20 +6,25 @@
 #include <queue>       
 #include <functional>
 
-template <uint_fast8_t threadCount>
 class ThreadPool
 {
 private:
     bool stopped = false, paused = true;
 
-    std::mutex threadLocks[threadCount];
-    std::condition_variable jobListener[threadCount];
-    std::queue<std::function<void()> > jobs[threadCount]; //a queue for each thread
-    std::thread workers[threadCount];
-    uint_fast8_t nextIndex = 0;
+    std::mutex* threadLocks;
+    std::condition_variable* jobListener;
+    std::queue<std::function<void()> >* jobs; //a queue for each thread
+    std::thread* workers;
+    uint_fast8_t nextIndex = 0, threadCount;
 public:
-    ThreadPool()
+    ThreadPool(uint_fast8_t threads)
     {
+        threadCount = threads;
+        threadLocks = new std::mutex[threadCount];
+        jobListener = new std::condition_variable[threadCount];
+        jobs = new std::queue<std::function<void()> >[threadCount];
+        workers = new std::thread[threadCount];
+
         for(uint_fast8_t i = 0; i < threadCount; ++i)
             workers[i] = std::thread([this,i](){
                     while(!stopped)
@@ -100,5 +105,9 @@ public:
     ~ThreadPool()
     {
         stop();
+        delete[] threadLocks;
+        delete[] jobListener;
+        delete[] jobs;
+        delete[] workers;
     }
 };
