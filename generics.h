@@ -59,12 +59,4 @@ std::vector<double> Softmax(const std::vector<T>& vec, double multiplier = 1)
     return res;
 }
 
-template <EqualityComparable T>
-bool Contains(const std::vector<T>& vec, T value)
-{
-    if constexpr(std::is_fundamental<T>::value) for( T t : vec ) if(t == value) return true;
-    else for( const T& t : vec ) if(t == value) return true;
-    return false; 
-}
-
 //to-do replace vector with sequence concept
