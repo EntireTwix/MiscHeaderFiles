@@ -3,7 +3,6 @@
 #include <chrono>
 #include "mat.h"
 #include "tpool.h"
-#include <windows.h>
 
 using namespace std::chrono;  
 
@@ -13,13 +12,13 @@ using namespace std::chrono;
 
 uint32_t TimeNow = system_clock::now().time_since_epoch().count(); // Fastest way to get epoch time
 
-#define logical_cores 10
-#define size 1000
+#define logical_cores 8
+#define size 10000
 #define increment size/logical_cores
 
 int main()
 {
-    ThreadPool<logical_cores> pool;
+    ThreadPool pool(logical_cores);
     double sum = 0;
 
     Mat<size,size> a;
