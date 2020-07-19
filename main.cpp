@@ -12,7 +12,7 @@ using namespace std::chrono;
 
 uint32_t TimeNow = system_clock::now().time_since_epoch().count(); // Fastest way to get epoch time
 
-#define logical_cores 8
+#define logical_cores 1
 #define size 10000
 #define increment size/logical_cores
 
@@ -23,7 +23,7 @@ int main()
 
     Mat<size,size> a;
 
-    for(size_t z = 0; z < 100; ++z)
+    for(size_t z = 0; z < 10; ++z)
     {
         pool.pause();
         high_resolution_clock::time_point TimePointStart = high_resolution_clock::now();
@@ -48,8 +48,8 @@ int main()
 
         std::cout<<"Runtime done: "<<duration_cast<duration<double>>(TimePointEnd - TimePointStart).count()<<"\n";
         //std::cout<<a;
-        sum+=duration_cast<duration<double>>(TimePointEnd - TimePointStart).count();
+        if(z>0) sum+=duration_cast<duration<double>>(TimePointEnd - TimePointStart).count();
     }
-    std::cout<<sum/100<<'\n';
+    std::cout<<sum/9<<'\n';
     return 0;
 }
