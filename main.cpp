@@ -24,7 +24,7 @@ int main()
 
     Mat<size,size> a;
 
-    for(size_t z = 0; z < 1; ++z)
+    for(size_t z = 0; z < 101; ++z)
     {
         pool.pause();
         high_resolution_clock::time_point TimePointStart = high_resolution_clock::now();
@@ -45,7 +45,7 @@ int main()
 
         TimePointStart = high_resolution_clock::now();
         pool.start();
-        while(pool.JobsLeft()) { std::cout<<pool.JobsLeft()<<" tasks\n"; }
+        while(pool.JobsLeft()) { /*std::cout<<pool.JobsLeft()<<" tasks\n";*/ }
         TimePointEnd = high_resolution_clock::now();
         //std::cout<<pool.JobsLeft()<<" end jobs\n";
 
