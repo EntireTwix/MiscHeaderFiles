@@ -43,8 +43,8 @@ public:
                             {
                                 //std::cout<<"working\n";
                                 job = jobs[i].front();
-                                jobs[i].pop();
                                 job();
+                                jobs[i].pop();
                             }
                         
                         //else std::cout<<"Thread "<<(int)i+1<<" is paused\n";
@@ -61,6 +61,7 @@ public:
             std::unique_lock<std::mutex> jobsAccess{threadLocks[nextIndex]}; //when its this threads turn
             jobs[nextIndex].push(func);
             jobListener[nextIndex].notify_one();
+            //std::cout<<"jobs notified "<<nextIndex<<'\n';
             //std::cout<<"job added\n";
         }
         nextIndex = nextIndex==(threadCount-1)?0:nextIndex+1;
