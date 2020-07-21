@@ -27,6 +27,8 @@ public:
 
         for(uint_fast8_t i = 0; i < threadCount; ++i)
             workers[i] = std::thread([this,i](){
+                    std::function<void()> job;
+                    
                     while(!stopped)
                     {  
                         {
@@ -36,7 +38,6 @@ public:
 
                         if(!paused)
                         {
-                            std::function<void()> job;
                             job = jobs[i].front();
                             job();
                             jobs[i].pop();
