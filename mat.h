@@ -92,6 +92,7 @@ inline Mat::Mat(const Mat& mat)
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
     members = new double[sizeX*sizeY];
+
     for(size_t i = 0; i < sizeY; ++i)
     for(size_t j = 0; j < sizeX; ++j)
         At(j, i) = mat.At(j, i);
@@ -188,15 +189,13 @@ inline Mat Mat::Transpose() const
 template <typename... Params>
 inline void Mat::Func(void (*func)(double&), Params... p)
 {
-    for(size_t i = 0; i < sizeY; ++i)
-    for(size_t j = 0; j < sizeX; ++j)
-        func(At(j, i), p...);
+    for(double* start = begin(); start != end(); ++start)
+        func(*start, p...);
 }
 void Mat::Func(void (*func)(double&))
 {
-    for(size_t i = 0; i < sizeY; ++i)
-    for(size_t j = 0; j < sizeX; ++j)
-        func(At(j, i));
+    for(double* start = begin(); start != end(); ++start)
+        func(*start);
 }
     
 template <typename... Params>
