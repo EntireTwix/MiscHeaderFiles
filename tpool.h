@@ -87,6 +87,8 @@ public:
     ~ThreadPool()
     {
         stop();
+        for(size_t i = 0; i < threadCount; ++i)
+            if(workers[i].joinable()) workers[i].join();
         delete[] threadLocks;
         delete[] jobListener;
         delete[] jobs;
