@@ -1,216 +1,262 @@
 #pragma once
+#include <stdexcept>
 #include <ostream>
-#include <initializer_list>
-#include "generics.h"
 
-template <ArithmeticOperators Type>
 class Mat
 {
 private:
-	Type** members = nullptr;
-	size_t size_x = 0, size_y = 0;
+    double* members = nullptr;
+    size_t sizeX = 0, sizeY = 0;
 public:
-	using value_type = Type;
-	Mat() = default;
-	Mat(std::initializer_list<std::initializer_list<Type> > list)
-	{
-		size_t last = 0, i = 0;
-		for (auto vec : list)
-		{
-			if( (vec.size() != last) && (i != 0) ) throw std::invalid_argument("Mat(list{{list}}):width has to be a constant in the Matrix");
-			last = vec.size();
-			++i;
-		}
+    Mat() = default;
+    explicit Mat(size_t x, size_t y);
+    Mat(const Mat& mat);
+    Mat(Mat&& mat);
+    Mat operator=(const Mat& mat);
+    Mat operator=(Mat&& mat);
+    
+    double& At(size_t x, size_t y);
+    double At(size_t x, size_t y) const;
 
-		unsigned w = 0, h = 0;
-		members = new Type * [list.size()];
+    size_t SizeX() const;
+    size_t SizeY() const;
 
-		//y
-		for (auto vec : list)
-		{
-			members[h] = new Type[vec.size()];
+    Mat Dot(const Mat& mat) const;
+    Mat VecMult(const Mat& mat) const;
+    Mat DoubleVecMult(const Mat& mat) const;
+    Mat Transpose() const;
+    Mat CompoundingVecMult(const Mat& mat) const;
 
-			//x
-			for (auto instance : vec)
-			{
-				members[h][w] = instance;
-				++w;
-			}
-			w = 0;
-			++h;
-		}
+    template <typename... Params>
+    void Func(void (*func)(double&), Params... p);
+    void Func(void (*func)(double&));
+    
+    template <typename... Params>
+    Mat Func(double (*func)(double), Params... p) const; 
+    Mat Func(double (*func)(double)) const;
+    Mat Func(const Mat& mat, double (*func)(double, double) ) const;
 
-		size_x = last;
-		size_y = h;
-	}
-	explicit Mat(int x, int y)
-	{
-		if ((x < 1) || (y < 1)) throw std::invalid_argument("Mat(x,y):both x and y must be positive");
+    Mat operator+(const Mat& mat) const;
+    Mat operator-(const Mat& mat) const;
+    Mat operator*(const Mat& mat) const;
 
-		//make Matrix
-		members = new Type * [y];
-		for (int i = 0; i < y; ++i)
-		{
-			members[i] = new Type[x]{Type()};
-		}
+    double* begin()
+    {
+        return &members[0];
+    }
+    double* end()
+    {
+        return &members[sizeX*sizeY];
+    }
 
-		//update to size
-		size_x = x;
-		size_y = y;
-	}
-	
-	//move operators
-	Mat(Mat<Type>&& m)
-	{
-		members = m.members;
-		size_x = m.size_x;
-		size_y = m.size_y;
-		m.members = nullptr;
-		m.size_y = m.size_x = 0;
-	}
-	Mat<Type> operator=(Mat<Type>&& m)
-	{
-		members = m.members;
-		size_x = m.size_x;
-		size_y = m.size_y;
-		m.members = nullptr;
-		m.size_y = m.size_x = 0;
-		return *this;
-	}
+    friend std::ostream& operator<<(std::ostream& os, const Mat& mat)
+    {
+        for(size_t i = 0; i < mat.SizeY(); ++i)
+        {
+            for(size_t j = 0; j < mat.SizeX(); ++j)
+                os<<(double)mat.At(j, i)<<' ';
+            os<<'\n';
+        }
+        return os;
+    }
 
-	//assignment operators
-	Mat(const Mat<Type>& m)
-	{
-		if (m.members)
-		{
-			members = new Type * [m.size_y];
-			
-			for (int j = 0; j < m.size_y; ++j)
-			{
-				members[j] = new Type[m.size_x];
-				for (int i = 0; i < m.size_x; ++i)
-				{
-					members[j][i] = m.members[j][i];
-				}
-			}
-		}
-		size_x = m.sizeX();
-		size_y = m.sizeY();
-	}
-	Mat<Type> operator=(const Mat<Type>& m)
-	{
-		if (m.members)
-		{
-			members = new Type * [m.size_y];
-
-			for (int j = 0; j < m.size_y; ++j)
-			{
-				members[j] = new Type[m.size_x];
-				for (int i = 0; i < m.size_x; ++i)
-				{
-					members[j][i] = m.members[j][i];
-				}
-			}
-		}
-		size_x = m.sizeX();
-		size_y = m.sizeY();
-		return *this;
-	}
-
-	//at function
-	Type& at(size_t y, size_t x)
-	{
-		if (x >= size_x || x < 0) throw std::out_of_range("at&:x is out of range "+std::to_string(x));
-		if (y >= size_y || y < 0) throw std::out_of_range("at&:y is out of range "+std::to_string(y));
-		return members[y][x];
-	}
-	Type at(size_t y, size_t x) const
-	{
-		if (x >= size_x || x < 0) throw std::out_of_range("at:x is out of range "+std::to_string(x));
-		if (y >= size_y || y < 0) throw std::out_of_range("at:y is out of range "+std::to_string(y));
-		return members[y][x];
-	}
-	Mat<Type> ApplyFunction(Type (*func)(Type)) //for each
-	{
-		for(size_t i = 0; i < sizeY(); ++i)
-		for(size_t j = 0; j < sizeX(); ++j)
-			at(i, j) = func(at(i, j));
-		return *this;
-	}
-
-	template <typename... Params>
-	Mat<Type> ApplyFunction(Type (*func)(Type, Params...), Params... p) //for each
-	{
-		for(size_t i = 0; i < sizeY(); ++i)
-		for(size_t j = 0; j < sizeX(); ++j)
-			at(i, j) = func(at(i, j), p...);
-		return *this;
-	}
-	
-	size_t sizeX() const { return size_x; }
-	size_t sizeY() const { return size_y; }
-
-	Mat<Type> dot(const Mat<Type>& mat) const
-	{
-		Mat<Type> res(mat.sizeX(), sizeY()); //product dimensions are the x of both mats
-		Type amount;
-		for(size_t i = 0; i < sizeY(); ++i) //for each y on the A matrix 
-		for(size_t j = 0; j < mat.sizeX(); ++j) //for each x on the B matrix 
-		{
-			amount = 0;
-			for(int k = 0; k < sizeX(); ++k) //is equivelant to mat.sizeY() 
-				amount+=at(i, k)*mat.at(k, j); 
-			res.at(i, j) = amount;
-		}
-		return res;
-	}
-	Mat<Type> operator+(const Mat<Type>& mat) const
-	{
-		if( (mat.sizeX() > sizeX()) || (mat.sizeY() > sizeY()) ) throw std::invalid_argument("operator+:matrix being added must be less then or equal dimensions");
-		Mat<Type> res(sizeX(), sizeY());
-
-		for(size_t i = 0; i < mat.sizeY(); ++i)
-		for(size_t j = 0; j < mat.sizeX(); ++j)
-			res.at(i, j) = at(i, j)+mat.at(i, j);
-		return res;
- 	}
-	Mat<Type> operator*(const Mat<Type>& mat) const
-	{
-		if( (mat.sizeX() > sizeX()) || (mat.sizeY() > sizeY()) ) throw std::invalid_argument("operator*:matrix being added must be less then or equal dimensions");
-		Mat<Type> res(sizeX(), sizeY());
-
-		for(size_t i = 0; i < mat.sizeY(); ++i)
-		for(size_t j = 0; j < mat.sizeX(); ++j)
-			res.at(i, j) = at(i, j)*mat.at(i, j);
-		return res;
-	}
-	Mat<Type> op(const Mat<Type>& mat, Type (*func)(Type a, Type b)) const //apply function for interacting with another matrix
-	{
-		if( (mat.sizeX() != sizeX()) || (mat.sizeY() != sizeY()) ) throw std::invalid_argument("op:matrix being added must be less then or equal dimensions");
-		Mat<Type> res(sizeX(), sizeY());
-		for(size_t i = 0; i < sizeY(); ++i)
-		for(size_t j = 0; j < sizeX(); ++j)
-		{
-			res.at(i, j) = func(at(i, j), mat.at(i, j));
-		}
-		return res;
-	}
-
-	friend std::ostream& operator<<(std::ostream& os, const Mat& m)
-	{
-		for (size_t i = 0; i < m.sizeY(); ++i)
-		{
-			for (size_t j = 0; j < m.sizeX(); ++j)
-			{
-				os<<m.at(i, j)<<' ';
-			}
-			os << '\n';
-		}
-		return os;
-	}
-
-	~Mat() { delete[] members; }
+    ~Mat();
 };
 
-//add find func
-//add iterator
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+inline Mat::Mat(size_t x, size_t y) : sizeX(x), sizeY(y) 
+{
+    members = new double[sizeX*sizeY]{0};
+}
+inline Mat::Mat(const Mat& mat)
+{
+    sizeX = mat.sizeX;
+    sizeY = mat.sizeY;
+    members = new double[sizeX*sizeY];
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        At(j, i) = mat.At(j, i);
+}
+inline Mat::Mat(Mat&& mat)
+{
+    sizeX = mat.sizeX;
+    sizeY = mat.sizeY;
+    members = std::move(mat.members);
+    mat.members = nullptr;
+}
+inline Mat Mat::operator=(const Mat& mat)
+{
+    sizeX = mat.sizeX;
+    sizeY = mat.sizeY;
+    members = new double[sizeX*sizeY];
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        At(j, i) = mat.At(j, i);
+    return *this;
+}
+inline Mat Mat::operator=(Mat&& mat)
+{
+    sizeX = mat.sizeX;
+    sizeY = mat.sizeY;
+    members = std::move(mat.members);
+    mat.members = nullptr;
+    return *this;
+}
+inline double& Mat::At(size_t x, size_t y) //indexing matrix
+{
+    if( (x >= sizeX) || (y >= sizeY) ) throw std::out_of_range("At: out of range, "+std::to_string(x)+' '+std::to_string(y));
+    return members[(y*sizeX)+x];
+}
+inline double Mat::At(size_t x, size_t y) const //indexing matrix
+{
+    if( (x >= sizeX) || (y >= sizeY) ) throw std::out_of_range("At: out of range, "+std::to_string(x)+' '+std::to_string(y));
+    return members[(y*sizeX)+x];
+}
+
+inline size_t Mat::SizeX() const
+{
+    return sizeX;
+}
+inline size_t Mat::SizeY() const
+{
+    return sizeY;
+}
+
+inline Mat Mat::Dot(const Mat& mat) const
+{
+    if(sizeY != 1) throw std::invalid_argument("input must be a vector for weight layer");
+    if(sizeX != mat.sizeY) throw std::invalid_argument("y of input must equal x of weight");
+     
+    Mat res(mat.sizeX, sizeY); //product dimensions are the x of both mats
+	double amount;
+	for(size_t i = 0; i < sizeY; ++i) //for each y on the A matrix 
+	for(size_t j = 0; j < mat.sizeX; ++j) //for each x on the B matrix 
+	{
+		amount = 0;
+		for(int k = 0; k < sizeX; ++k) //is equivelant to mat.sizeY() 
+			amount+=At(k, i)*mat.At(j, k); 
+		res.At(j, i) = amount;
+	}
+	return res;
+}
+inline Mat Mat::VecMult(const Mat& mat) const
+{
+    Mat res(sizeX, sizeY);
+    if(mat.sizeX != sizeY) throw std::invalid_argument("sizeX of the argument must meet the sizeY of the calling object");
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        res.At(j, i) = At(j, i)*mat.At(i,0);
+    return res; 
+}
+inline Mat Mat::DoubleVecMult(const Mat& mat) const
+{
+    Mat res(sizeX, mat.sizeX);
+    if(mat.sizeY != sizeY) throw std::invalid_argument("sizeY of both must be 1");
+    for(size_t i = 0; i < mat.sizeX; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        res.At(j, i) = At(j, 0)*mat.At(i,0);
+    return res;
+}
+inline Mat Mat::Transpose() const
+{
+    Mat res(sizeY, sizeX);
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        res.At(i, j) = At(j, i);
+    return res;
+}
+
+template <typename... Params>
+inline void Mat::Func(void (*func)(double&), Params... p)
+{
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        func(At(j, i), p...);
+}
+void Mat::Func(void (*func)(double&))
+{
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        func(At(j, i));
+}
+    
+template <typename... Params>
+inline Mat Mat::Func(double (*func)(double), Params... p) const
+{
+    Mat res(SizeX(), SizeY());
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        res.At(j, i) = func(At(j, i), p...);
+    return res;
+}
+inline Mat Mat::Func(double (*func)(double)) const
+{
+    Mat res(SizeX(), SizeY());
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        res.At(j, i) = func(At(j, i));
+    return res;
+}
+inline Mat Mat::Func(const Mat& mat, double (*func)(double, double) ) const
+{
+    if( (mat.sizeX != sizeX) || (mat.sizeY != sizeY) ) throw std::invalid_argument("matrices must be the same dimensions");
+    Mat res(SizeX(), SizeY());
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        res.At(j, i) = func(At(j, i), mat.At(j, i));
+    return res;
+}
+
+inline Mat Mat::operator+(const Mat& mat) const
+{
+    if( (mat.SizeX() != SizeX()) || (mat.SizeY() != SizeY()) ) throw std::invalid_argument("operator+: parameter must match the dimensions of this");
+    Mat res(SizeX(), SizeY());
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        res.At(j, i) = At(j, i)+mat.At(j, i);
+    return res;
+}
+inline Mat Mat::operator-(const Mat& mat) const
+{
+    if( (mat.SizeX() != SizeX()) || (mat.SizeY() != SizeY()) ) throw std::invalid_argument("operator-: parameter must match the dimensions of this");
+    Mat res(SizeX(), SizeY());
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        res.At(j, i) = At(j, i)-mat.At(j, i);
+    return res;
+}
+inline Mat Mat::operator*(const Mat& mat) const
+{
+    if( (mat.SizeX() != SizeX()) || (mat.SizeY() != SizeY()) ) throw std::invalid_argument("operator*: parameter must match the dimensions of this");
+    Mat res(SizeX(), SizeY());
+    for(size_t i = 0; i < sizeY; ++i)
+    for(size_t j = 0; j < sizeX; ++j)
+        res.At(j, i) = At(j, i)*mat.At(j, i);
+    return res;
+}
+
+inline Mat::~Mat()
+{
+    delete[] members;
+}
+
+//make initilizer list constructor
