@@ -4,6 +4,7 @@
 #include <windows.h>
 #include "mat.h"
 #include "tpool.h"
+#include <omp.h>
 
 using namespace std::chrono;  
 
@@ -24,17 +25,18 @@ int main()
 
     Mat<size,size> a;
 
-    for(size_t z = 0; z < 101; ++z)
+    for(size_t z = 0; z < 100; ++z)
     {
         pool.pause();
         high_resolution_clock::time_point TimePointStart = high_resolution_clock::now();
         for(size_t i = 0; i < size; i+=increment)
             pool.AddTask([&a,i](){
                 //std::cout<<"working "<<i<<'\n';
-                for(size_t k = i; k < i+increment; ++k)
                 for(size_t j = 0; j < size; ++j)
+                for(size_t k = i; k < i+increment; ++k)
                 {
                     std::minstd_rand LinearCongruential( TimeNow - system_clock::now().time_since_epoch().count() );
+                    
                     a.At(k,j) = LinearCongruential();
                 }
                 //std::cout<<"finished "<<i<<'\n';
@@ -50,9 +52,12 @@ int main()
         //std::cout<<pool.JobsLeft()<<" end jobs\n";
 
         std::cout<<"Runtime done: "<<duration_cast<duration<double>>(TimePointEnd - TimePointStart).count()<<"\n";
-        if(z>0) sum+=duration_cast<duration<double>>(TimePointEnd - TimePointStart).count();
+        sum+=duration_cast<duration<double>>(TimePointEnd - TimePointStart).count();
         //std::cout<<a;
     }
-    std::cout<<sum/100<<'\n';
+    std::cout<<(sum/100)*-1<<'\n';
+    
+    
+
     return 0;
 }
