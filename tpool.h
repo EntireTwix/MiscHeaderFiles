@@ -11,10 +11,10 @@ class ThreadPool final
 private:
     bool stopped = false, paused = true;
 
-    std::mutex* threadLocks;
-    std::condition_variable* jobListener;
+    std::mutex* threadLocks; //lock for using jobs que
+    std::condition_variable* jobListener; //listener for waiting for jobs update
     std::queue<std::function<void()> >* jobs; //a queue for each thread
-    std::thread* workers;
+    std::thread* workers; //threads
     uint_fast8_t threadCount;
 public:
     ThreadPool(uint_fast8_t threads = 0)
