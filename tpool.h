@@ -6,6 +6,7 @@
 #include <queue>       
 #include <functional>
 
+template <uint_fast8_t threads = 0>
 class ThreadPool final
 {
 private:
@@ -16,8 +17,17 @@ private:
     std::queue<std::function<void()> >* jobs; //a queue for each thread
     std::thread* workers; //threads
     uint_fast8_t threadCount;
+
+    void stop()
+    {
+        stopped = true;
+        for(uint_fast8_t i = 0; i < threadCount; ++i)
+        {
+            jobListener[i].notify_one();
+        }
+    }
 public:
-    ThreadPool(uint_fast8_t threads = 0)
+    ThreadPool()
     {
         threadCount = threads?threads:std::thread::hardware_concurrency();
         threadLocks = new std::mutex[threadCount];
@@ -88,15 +98,6 @@ public:
     {
         paused = true;
     }
-    void stop()
-    {
-        stopped = true;
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
-        {
-            jobListener[i].notify_one();
-        }
-    }
-    
 
     ~ThreadPool()
     {
