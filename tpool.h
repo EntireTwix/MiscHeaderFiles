@@ -6,7 +6,7 @@
 #include <queue>       
 #include <functional>
 
-class ThreadPool
+class ThreadPool final
 {
 private:
     bool stopped = false, paused = true;
@@ -15,11 +15,11 @@ private:
     std::condition_variable* jobListener;
     std::queue<std::function<void()> >* jobs; //a queue for each thread
     std::thread* workers;
-    uint_fast8_t nextIndex = 0, threadCount;
+    uint_fast8_t threadCount;
 public:
-    ThreadPool(uint_fast8_t threads)
+    ThreadPool(uint_fast8_t threads = 0)
     {
-        threadCount = threads;
+        threadCount = threads?threads:std::thread::hardware_concurrency();
         threadLocks = new std::mutex[threadCount];
         jobListener = new std::condition_variable[threadCount];
         jobs = new std::queue<std::function<void()> >[threadCount];
@@ -29,12 +29,14 @@ public:
             workers[i] = std::thread([this,i](){
                     std::function<void()> job;
                     
-                    while(!stopped)
+                    while(1)
                     {  
                         {
-                            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //when its this threads turn
-                            jobListener[i].wait(jobsAccess, [this,i](){ return !(jobs[i].empty() || stopped); } );
+                            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; 
+                            jobListener[i].wait(jobsAccess, [this,i](){ return !jobs[i].empty() || stopped; } );
                         }
+
+                        if(stopped) break;
 
                         if(!paused)
                         {
@@ -49,23 +51,31 @@ public:
     
     void AddTask(std::function<void()> func)
     {
+        //finding worker with least jobs
+        size_t smallest = -1;
+        uint_fast8_t index;
+        for(uint_fast8_t i = 0; i < threadCount; ++i)
         {
-            std::unique_lock<std::mutex> jobsAccess{threadLocks[nextIndex]}; //when its this threads turn
-            jobs[nextIndex].push(func);
+            if(jobs[i].size()<smallest)
+            {
+                smallest = jobs[i].size();
+                index = i;
+            }
         }
-        jobListener[nextIndex].notify_one();
-        
-        nextIndex = nextIndex==(threadCount-1)?0:nextIndex+1;
+
+        {
+            std::unique_lock<std::mutex> jobsAccess{threadLocks[index]}; 
+            jobs[index].push(func);
+        }
+        jobListener[index].notify_one();
     }
     size_t JobsLeft()
     {
         size_t sum = 0;
         for(uint_fast8_t i = 0; i < threadCount; ++i)
         {
-            {
-                std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //when its this threads turn
-                sum += jobs[i].size();
-            }
+            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; 
+            sum += jobs[i].size();
         }
         return sum;
     }
@@ -81,6 +91,10 @@ public:
     void stop()
     {
         stopped = true;
+        for(uint_fast8_t i = 0; i < threadCount; ++i)
+        {
+            jobListener[i].notify_one();
+        }
     }
     
 
