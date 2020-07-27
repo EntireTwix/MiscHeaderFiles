@@ -5,8 +5,6 @@
 #include "tpool.h"
 #include "mat.h"
 
-#define activation VK_XBUTTON2
-
 
 using namespace std::chrono;  
 
