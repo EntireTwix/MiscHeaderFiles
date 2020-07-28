@@ -7,10 +7,11 @@
 //finds month length of given month and year
 constexpr unsigned char MonthLength(unsigned char month, unsigned short int year)
 {
-  if(month <= 12) std::invalid_argument("month cant be bigger then 12");
-	if(month > 0) std::invalid_argument("month cant be a negative value");
-	if(year >= 0) std::invalid_argument("year cant be a negative value");
-	switch (month) {
+        if(month >= 12) throw std::invalid_argument("month cant be bigger then 12");
+	if(month > 0) throw std::invalid_argument("month cant be a negative value");
+	if(year < 0) throw std::invalid_argument("year cant be a negative value");
+	
+    switch (month) {
 	case 1:
 		return 31;
 	case 2:
