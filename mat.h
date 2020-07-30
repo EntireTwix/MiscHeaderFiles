@@ -1,11 +1,13 @@
 #pragma once
 #include <stdexcept>
 #include <ostream>
+#include "generics.h"
 
+template <ArithmeticOperators Type = float>
 class Mat
 {
 private:
-    double* members = nullptr;
+    Type* members = nullptr;
     size_t sizeX = 0, sizeY = 0;
 public:
     Mat() = default;
@@ -15,8 +17,8 @@ public:
     Mat operator=(const Mat& mat);
     Mat operator=(Mat&& mat);
     
-    double& At(size_t x, size_t y);
-    double At(size_t x, size_t y) const;
+    Type& At(size_t x, size_t y);
+    Type At(size_t x, size_t y) const;
 
     size_t SizeX() const;
     size_t SizeY() const;
@@ -28,23 +30,23 @@ public:
     Mat CompoundingVecMult(const Mat& mat) const;
 
     template <typename... Params>
-    void Func(void (*func)(double&), Params... p);
-    void Func(void (*func)(double&));
+    void Func(void (*func)(Type&), Params... p);
+    void Func(void (*func)(Type&));
     
     template <typename... Params>
-    Mat Func(double (*func)(double), Params... p) const; 
-    Mat Func(double (*func)(double)) const;
-    Mat Func(const Mat& mat, double (*func)(double, double) ) const;
+    Mat Func(Type (*func)(Type), Params... p) const; 
+    Mat Func(Type (*func)(Type)) const;
+    Mat Func(const Mat& mat, Type (*func)(Type, Type) ) const;
 
     Mat operator+(const Mat& mat) const;
     Mat operator-(const Mat& mat) const;
     Mat operator*(const Mat& mat) const;
 
-    double* begin()
+    Type* begin()
     {
         return &members[0];
     }
-    double* end()
+    Type* end()
     {
         return &members[sizeX*sizeY];
     }
@@ -54,7 +56,7 @@ public:
         for(size_t i = 0; i < mat.SizeY(); ++i)
         {
             for(size_t j = 0; j < mat.SizeX(); ++j)
-                os<<(double)mat.At(j, i)<<' ';
+                os<<(Type)mat.At(j, i)<<' ';
             os<<'\n';
         }
         return os;
@@ -81,40 +83,47 @@ public:
 
 
 
-
-
-inline Mat::Mat(size_t x, size_t y) : sizeX(x), sizeY(y) 
+template <ArithmeticOperators Type>
+inline Mat<Type>::Mat(size_t x, size_t y) : sizeX(x), sizeY(y) 
 {
-    members = new double[sizeX*sizeY]{0};
+    members = new Type[sizeX*sizeY]{Type()};
 }
-inline Mat::Mat(const Mat& mat)
+
+template <ArithmeticOperators Type>
+inline Mat<Type>::Mat(const Mat<Type>& mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = new double[sizeX*sizeY];
+    members = new Type[sizeX*sizeY];
 
     for(size_t i = 0; i < sizeY; ++i)
     for(size_t j = 0; j < sizeX; ++j)
         At(j, i) = mat.At(j, i);
 }
-inline Mat::Mat(Mat&& mat)
+
+template <ArithmeticOperators Type>
+inline Mat<Type>::Mat(Mat<Type>&& mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
     members = std::move(mat.members);
     mat.members = nullptr;
 }
-inline Mat Mat::operator=(const Mat& mat)
+
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::operator=(const Mat<Type>& mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = new double[sizeX*sizeY];
+    members = new Type[sizeX*sizeY];
     for(size_t i = 0; i < sizeY; ++i)
     for(size_t j = 0; j < sizeX; ++j)
         At(j, i) = mat.At(j, i);
     return *this;
 }
-inline Mat Mat::operator=(Mat&& mat)
+
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::operator=(Mat<Type>&& mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
@@ -122,33 +131,41 @@ inline Mat Mat::operator=(Mat&& mat)
     mat.members = nullptr;
     return *this;
 }
-inline double& Mat::At(size_t x, size_t y) //indexing matrix
-{
-    if( (x >= sizeX) || (y >= sizeY) ) throw std::out_of_range("At: out of range, "+std::to_string(x)+' '+std::to_string(y));
-    return members[(y*sizeX)+x];
-}
-inline double Mat::At(size_t x, size_t y) const //indexing matrix
+
+template <ArithmeticOperators Type>
+inline Type& Mat<Type>::At(size_t x, size_t y) //indexing matrix
 {
     if( (x >= sizeX) || (y >= sizeY) ) throw std::out_of_range("At: out of range, "+std::to_string(x)+' '+std::to_string(y));
     return members[(y*sizeX)+x];
 }
 
-inline size_t Mat::SizeX() const
+template <ArithmeticOperators Type>
+inline Type Mat<Type>::At(size_t x, size_t y) const //indexing matrix
+{
+    if( (x >= sizeX) || (y >= sizeY) ) throw std::out_of_range("At: out of range, "+std::to_string(x)+' '+std::to_string(y));
+    return members[(y*sizeX)+x];
+}
+
+template <ArithmeticOperators Type>
+inline size_t Mat<Type>::SizeX() const
 {
     return sizeX;
 }
-inline size_t Mat::SizeY() const
+
+template <ArithmeticOperators Type>
+inline size_t Mat<Type>::SizeY() const
 {
     return sizeY;
 }
 
-inline Mat Mat::Dot(const Mat& mat) const
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::Dot(const Mat<Type>& mat) const
 {
     if(sizeY != 1) throw std::invalid_argument("input must be a vector for weight layer");
     if(sizeX != mat.sizeY) throw std::invalid_argument("y of input must equal x of weight");
      
     Mat res(mat.sizeX, sizeY); //product dimensions are the x of both mats
-	double amount;
+	Type amount;
 	for(size_t i = 0; i < sizeY; ++i) //for each y on the A matrix 
 	for(size_t j = 0; j < mat.sizeX; ++j) //for each x on the B matrix 
 	{
@@ -159,7 +176,9 @@ inline Mat Mat::Dot(const Mat& mat) const
 	}
 	return res;
 }
-inline Mat Mat::VecMult(const Mat& mat) const
+
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::VecMult(const Mat<Type>& mat) const
 {
     Mat res(sizeX, sizeY);
     if(mat.sizeX != sizeY) throw std::invalid_argument("sizeX of the argument must meet the sizeY of the calling object");
@@ -168,7 +187,9 @@ inline Mat Mat::VecMult(const Mat& mat) const
         res.At(j, i) = At(j, i)*mat.At(i,0);
     return res; 
 }
-inline Mat Mat::DoubleVecMult(const Mat& mat) const
+
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::DoubleVecMult(const Mat<Type>& mat) const
 {
     Mat res(sizeX, mat.sizeX);
     if(mat.sizeY != sizeY) throw std::invalid_argument("sizeY of both must be 1");
@@ -177,7 +198,9 @@ inline Mat Mat::DoubleVecMult(const Mat& mat) const
         res.At(j, i) = At(j, 0)*mat.At(i,0);
     return res;
 }
-inline Mat Mat::Transpose() const
+
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::Transpose() const
 {
     Mat res(sizeY, sizeX);
     for(size_t i = 0; i < sizeY; ++i)
@@ -186,20 +209,24 @@ inline Mat Mat::Transpose() const
     return res;
 }
 
+template <ArithmeticOperators Type>
 template <typename... Params>
-inline void Mat::Func(void (*func)(double&), Params... p)
+inline void Mat<Type>::Func(void (*func)(Type&), Params... p)
 {
-    for(double* start = begin(); start != end(); ++start)
+    for(Type* start = begin(); start != end(); ++start)
         func(*start, p...);
 }
-void Mat::Func(void (*func)(double&))
+
+template <ArithmeticOperators Type>
+void Mat<Type>::Func(void (*func)(Type&))
 {
-    for(double* start = begin(); start != end(); ++start)
+    for(Type* start = begin(); start != end(); ++start)
         func(*start);
 }
     
+template <ArithmeticOperators Type>
 template <typename... Params>
-inline Mat Mat::Func(double (*func)(double), Params... p) const
+inline Mat<Type> Mat<Type>::Func(Type (*func)(Type), Params... p) const
 {
     Mat res(SizeX(), SizeY());
     for(size_t i = 0; i < sizeY; ++i)
@@ -207,7 +234,9 @@ inline Mat Mat::Func(double (*func)(double), Params... p) const
         res.At(j, i) = func(At(j, i), p...);
     return res;
 }
-inline Mat Mat::Func(double (*func)(double)) const
+
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::Func(Type (*func)(Type)) const
 {
     Mat res(SizeX(), SizeY());
     for(size_t i = 0; i < sizeY; ++i)
@@ -215,7 +244,9 @@ inline Mat Mat::Func(double (*func)(double)) const
         res.At(j, i) = func(At(j, i));
     return res;
 }
-inline Mat Mat::Func(const Mat& mat, double (*func)(double, double) ) const
+
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::Func(const Mat<Type>& mat, Type (*func)(Type, Type) ) const
 {
     if( (mat.sizeX != sizeX) || (mat.sizeY != sizeY) ) throw std::invalid_argument("matrices must be the same dimensions");
     Mat res(SizeX(), SizeY());
@@ -225,7 +256,8 @@ inline Mat Mat::Func(const Mat& mat, double (*func)(double, double) ) const
     return res;
 }
 
-inline Mat Mat::operator+(const Mat& mat) const
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::operator+(const Mat<Type>& mat) const
 {
     if( (mat.SizeX() != SizeX()) || (mat.SizeY() != SizeY()) ) throw std::invalid_argument("operator+: parameter must match the dimensions of this");
     Mat res(SizeX(), SizeY());
@@ -234,7 +266,9 @@ inline Mat Mat::operator+(const Mat& mat) const
         res.At(j, i) = At(j, i)+mat.At(j, i);
     return res;
 }
-inline Mat Mat::operator-(const Mat& mat) const
+
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::operator-(const Mat<Type>& mat) const
 {
     if( (mat.SizeX() != SizeX()) || (mat.SizeY() != SizeY()) ) throw std::invalid_argument("operator-: parameter must match the dimensions of this");
     Mat res(SizeX(), SizeY());
@@ -243,7 +277,9 @@ inline Mat Mat::operator-(const Mat& mat) const
         res.At(j, i) = At(j, i)-mat.At(j, i);
     return res;
 }
-inline Mat Mat::operator*(const Mat& mat) const
+
+template <ArithmeticOperators Type>
+inline Mat<Type> Mat<Type>::operator*(const Mat<Type>& mat) const
 {
     if( (mat.SizeX() != SizeX()) || (mat.SizeY() != SizeY()) ) throw std::invalid_argument("operator*: parameter must match the dimensions of this");
     Mat res(SizeX(), SizeY());
@@ -253,9 +289,11 @@ inline Mat Mat::operator*(const Mat& mat) const
     return res;
 }
 
-inline Mat::~Mat()
+template <ArithmeticOperators Type>
+inline Mat<Type>::~Mat()
 {
     delete[] members;
 }
+
 
 //make initilizer list constructor
