@@ -1,112 +1,176 @@
-#pragma once
-#include <iostream>
-#include <mutex>
 #include <thread>
-#include <condition_variable>
-#include <queue>       
+#include <mutex>
 #include <functional>
+#include <queue>
+#include <condition_variable>
 
-template <uint_fast8_t threads = 0>
-class ThreadPool final
+template <uint_fast8_t threadsArgument = 0>
+class ThreadPool
 {
 private:
-    bool stopped = false, paused = true;
+    std::thread* workers;
+    uint_fast8_t threads = threadsArgument > 0 ? threadsArgument : std::thread::hardware_concurrency();
 
-    std::mutex* threadLocks; //lock for using jobs que
-    std::condition_variable* jobListener; //listener for waiting for jobs update
-    std::queue<std::function<void()> >* jobs; //a queue for each thread
-    std::thread* workers; //threads
-    uint_fast8_t threadCount;
+    //jobLock scope
+    std::queue<std::function<void()> > tasks;
+    std::mutex jobLock, playingLock;
 
-    void stop()
-    {
-        stopped = true;
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
-        {
-            jobListener[i].notify_one();
-        }
-    }
+    size_t taskCount = 0;
+
+    bool playing = false; //by default paused
+    bool stopped = false;
+
+    std::condition_variable jobVar, pausedVar;
+
 public:
     ThreadPool()
     {
-        threadCount = threads?threads:std::thread::hardware_concurrency();
-        threadLocks = new std::mutex[threadCount];
-        jobListener = new std::condition_variable[threadCount];
-        jobs = new std::queue<std::function<void()> >[threadCount];
-        workers = new std::thread[threadCount];
+        workers = new std::thread[threads];
+        for (uint_fast8_t i = 0; i < threads; ++i)
+        {
+            workers[i] = std::thread([this, i]() {
+                size_t tCount = 0;
+                std::function<void()> job;
 
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
-            workers[i] = std::thread([this,i](){
-                    std::function<void()> job;
-                    
-                    while(1)
-                    {  
+                while (1)
+                {
+                    //std::cout<<"1\n";
+
+                    if (!stopped) //is thread running
+                    {
+                        //std::cout<<"2\n";
+                        //std::cout<<std::to_string(tCount)+" : tCount\n";
+
+                        if (tasks.size()) //there are tasks that arent being worked on
                         {
-                            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; 
-                            jobListener[i].wait(jobsAccess, [this,i](){ return !jobs[i].empty() || stopped; } );
+                            //setting up job
+                            jobLock.lock();
+                            job = tasks.front();
+                            tasks.pop();
+                            jobLock.unlock();
+                            //std::cout<<"3\n";
+
+                        }
+                        else
+                        {
+                            {
+                                //std::cout<<"4\n";
+                                std::unique_lock<std::mutex> jobL{ jobLock };
+                                jobVar.wait(jobL); //waiting for new job or stopped notification
+                            }
+
+                            //std::cout<<"5\n";
+
+                            if (stopped)
+                            {
+                                //std::cout<<"6\n";
+                                break;
+                            }
+                            //std::cout<<"7\n";
+
+                            job = tasks.front();
+                            tasks.pop();
+
                         }
 
-                        if(stopped) break;
+                        //std::cout<<"8\n";
 
-                        if(!paused)
+                        if (playing)
                         {
-                            job = jobs[i].front();
+                            //std::cout<<"working\n";
                             job();
-                            jobs[i].pop();
-                        }
-                    }
-            });
-    }
+                            //std::cout<<"done working\n";
+                            jobLock.lock();
+                            --taskCount;
+                            jobLock.unlock();
+                            //std::cout<<"9\n";
 
-    
+                        }
+                        else //if paused
+                        {
+                            {
+                                std::unique_lock<std::mutex> pausedL{ playingLock };
+                                pausedVar.wait(pausedL); //waiting for unpaused or stopped notification
+                            }
+                            //std::cout<<"10\n";
+
+                            if (stopped)
+                            {
+                                //std::cout<<"11\n";
+
+                                break;
+
+                            }
+                            else
+                            {
+                                //std::cout<<"working\n";
+                                job();
+                                //std::cout<<"done working\n";
+                                jobLock.lock();
+                                --taskCount;
+                                jobLock.unlock();
+                                //std::cout<<"12\n";
+
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        //std::cout<<"13\n";
+
+                        break;
+                    }
+                }
+                //std::cout<<"thread died\n";
+                });
+        }
+
+    }
+    void Pause()
+    {
+        playing = false;
+    }
+    void Start()
+    {
+        playing = true;
+
+        //std::cout<<"all threads unpaused\n";
+        pausedVar.notify_all(); //break all waits based on pause
+
+    }
+    size_t Jobs()
+    {
+        std::unique_lock<std::mutex> taskL{ jobLock };
+        return taskCount;
+    }
     void AddTask(std::function<void()> func)
     {
-        //finding worker with least jobs
-        size_t smallest = -1;
-        uint_fast8_t index;
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
-        {
-            if(jobs[i].size()<smallest)
-            {
-                smallest = jobs[i].size();
-                index = i;
-            }
-        }
+        jobLock.lock();
+        tasks.push(func);
+        ++taskCount;
+        jobLock.unlock();
 
-        {
-            std::unique_lock<std::mutex> jobsAccess{threadLocks[index]}; 
-            jobs[index].push(func);
-        }
-        jobListener[index].notify_one();
-    }
-    size_t JobsLeft()
-    {
-        size_t sum = 0;
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
-        {
-            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; 
-            sum += jobs[i].size();
-        }
-        return sum;
+
+        jobVar.notify_one(); //let one of the threads know of the new job
+        //std::cout<<"one thread notified of new job\n";
     }
 
-    void start() 
-    {
-        paused = false;
-    }
-    void pause()
-    {
-        paused = true;
-    }
 
     ~ThreadPool()
     {
-        stop();
-        for(size_t i = 0; i < threadCount; ++i)
-            if(workers[i].joinable()) workers[i].join();
-        delete[] threadLocks;
-        delete[] jobListener;
-        delete[] jobs;
+        //std::cout<<"deconstruction started\n";
+        stopped = true;
+
+        playing = true;
+
+        pausedVar.notify_all();
+        jobVar.notify_all();
+
+        for (uint_fast8_t i = 0; i < threads; ++i)
+        {
+            if (workers[i].joinable()) workers[i].join();
+        }
         delete[] workers;
     }
 };
