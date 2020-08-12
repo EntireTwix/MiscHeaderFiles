@@ -18,10 +18,10 @@ private:
     std::thread* workers; //threads
     uint_fast8_t threadCount;
 
-    void stop()
+    void Stop()
     {
         stopped = true;
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
+        for (uint_fast8_t i = 0; i < threadCount; ++i)
         {
             jobListener[i].notify_one();
         }
@@ -35,38 +35,44 @@ public:
         jobs = new std::queue<std::function<void()> >[threadCount];
         workers = new std::thread[threadCount];
 
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
-            workers[i] = std::thread([this,i](){
-                    std::function<void()> job;
-                    
-                    while(1)
-                    {  
-                        {
-                            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; 
-                            jobListener[i].wait(jobsAccess, [this,i](){ return !jobs[i].empty() || stopped; } );
-                        }
+        for (uint_fast8_t i = 0; i < threadCount; ++i)
+            workers[i] = std::thread([this, i]() {
+            std::function<void()> job;
 
-                        if(stopped) break;
+            while (!stopped)
+            {
 
-                        if(!paused)
-                        {
-                            job = jobs[i].front();
-                            job();
-                            jobs[i].pop();
-                        }
-                    }
-            });
+                std::unique_lock<std::mutex> jobsAccess{ threadLocks[i] };
+                if (jobs[i].empty() && !stopped)
+                {
+                    jobListener[i].wait(jobsAccess, [this, i]() { return !jobs[i].empty() || stopped; });
+                }
+                job = jobs[i].front();
+
+
+                while (paused && !stopped) //downtime
+                {
+                }
+
+                if (!paused && job) //downtime
+                {
+                    job(); //downtime
+                    jobs[i].pop(); //optimally should be before work is done
+                }
+
+            }
+                });
     }
 
-    
+
     void AddTask(std::function<void()> func)
     {
         //finding worker with least jobs
         size_t smallest = -1;
         uint_fast8_t index;
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
+        for (uint_fast8_t i = 0; i < threadCount; ++i)
         {
-            if(jobs[i].size()<smallest)
+            if (jobs[i].size()<smallest)
             {
                 smallest = jobs[i].size();
                 index = i;
@@ -74,36 +80,36 @@ public:
         }
 
         {
-            std::unique_lock<std::mutex> jobsAccess{threadLocks[index]}; 
+            std::unique_lock<std::mutex> jobsAccess{ threadLocks[index] };
             jobs[index].push(func);
         }
         jobListener[index].notify_one();
     }
-    size_t JobsLeft()
+    size_t Jobs()
     {
         size_t sum = 0;
-        for(uint_fast8_t i = 0; i < threadCount; ++i)
+        for (uint_fast8_t i = 0; i < threadCount; ++i)
         {
-            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; 
+            std::unique_lock<std::mutex> jobsAccess{ threadLocks[i] };
             sum += jobs[i].size();
         }
         return sum;
     }
 
-    void start() 
+    void Start()
     {
         paused = false;
     }
-    void pause()
+    void Pause()
     {
         paused = true;
     }
 
     ~ThreadPool()
     {
-        stop();
-        for(size_t i = 0; i < threadCount; ++i)
-            if(workers[i].joinable()) workers[i].join();
+        Stop();
+        for (size_t i = 0; i < threadCount; ++i)
+            if (workers[i].joinable()) workers[i].join();
         delete[] threadLocks;
         delete[] jobListener;
         delete[] jobs;
