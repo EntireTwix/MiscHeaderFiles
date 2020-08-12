@@ -29,7 +29,7 @@ private:
 public:
     ThreadPool()
     {
-        threadCount = threads?threads:std::thread::hardware_concurrency();
+        threadCount = threads?threads : std::thread::hardware_concurrency();
         threadLocks = new std::mutex[threadCount];
         jobListener = new std::condition_variable[threadCount];
         jobs = new std::queue<std::function<void()> >[threadCount];
