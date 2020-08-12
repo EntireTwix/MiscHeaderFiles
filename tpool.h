@@ -41,23 +41,29 @@ public:
 
             while (!stopped)
             {
-
+                //grab ownership
                 std::unique_lock<std::mutex> jobsAccess{ threadLocks[i] };
+
+                //wait for new jobs
                 if (jobs[i].empty() && !stopped)
                 {
                     jobListener[i].wait(jobsAccess, [this, i]() { return !jobs[i].empty() || stopped; });
                 }
+
+                //set up new job
                 job = jobs[i].front();
 
-
-                while (paused && !stopped) //downtime
+                //wait while paused
+                while (paused && !stopped)
                 {
                 }
 
-                if (!paused && job) //downtime
+                if (!paused && job)
                 {
-                    job(); //downtime
-                    jobs[i].pop(); //optimally should be before work is done
+                    //do work
+                    job();
+                    //pop job because its done
+                    jobs[i].pop();
                 }
 
             }
@@ -72,6 +78,7 @@ public:
         uint_fast8_t index;
         for (uint_fast8_t i = 0; i < threadCount; ++i)
         {
+            std::unique_lock<std::mutex> jobsAccess{ threadLocks[index] };
             if (jobs[i].size()<smallest)
             {
                 smallest = jobs[i].size();
@@ -79,11 +86,12 @@ public:
             }
         }
 
+        //adding to its job queue
         {
             std::unique_lock<std::mutex> jobsAccess{ threadLocks[index] };
             jobs[index].push(func);
         }
-        jobListener[index].notify_one();
+        jobListener[index].notify_all();
     }
     size_t Jobs()
     {
@@ -108,6 +116,7 @@ public:
     ~ThreadPool()
     {
         Stop();
+        //closing threads properly 
         for (size_t i = 0; i < threadCount; ++i)
             if (workers[i].joinable()) workers[i].join();
         delete[] threadLocks;
