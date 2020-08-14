@@ -22,7 +22,7 @@ int main()
 
     Mat<uint_fast8_t> a(size, size);
 
-    for (int z = 0; z < 10; ++z)
+    for (int z = 0; z < 100; ++z)
     {
         pool.Pause();
         high_resolution_clock::time_point TimePointStart = high_resolution_clock::now();
@@ -32,8 +32,7 @@ int main()
             for (size_t j = 0; j < size; ++j)
                 for (size_t k = i; k < i + increment; ++k)
                 {
-                    std::minstd_rand LinearCongruential(TimeNow - system_clock::now().time_since_epoch().count());
-                    a.At(k, j) = (uint_fast8_t)LinearCongruential();
+                    a.At(k, j) = ((48271 * (TimeNow - system_clock::now().time_since_epoch().count())) + 11) % 32;
                 }
             //std::cout<<"finished "<<i<<'\n';
                 });
@@ -53,6 +52,6 @@ int main()
         sum += duration_cast<duration<double>>(TimePointEnd - TimePointStart).count();
         //std::cout<<a;
     }
-    std::cout << (sum / 10) * -1 << '\n';
+    std::cout << (sum / 100) * -1 << '\n';
     return 0;
 }
