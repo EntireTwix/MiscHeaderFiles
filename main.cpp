@@ -24,7 +24,10 @@ void Random16(unsigned char *pAt, __m256i &timeValues, const __m256i &constantVa
     }
 
     res = _mm256_mul_epi32(timeValues, constantValues);
-    memcpy(pAt, &res, sizeof(pAt));
+    for (int i = 0; i < 4; ++i)
+    {
+        pAt[i] = res[i] % 256;
+    }
 }
 
 int main()
