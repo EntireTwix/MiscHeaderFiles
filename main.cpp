@@ -16,11 +16,13 @@ auto size = 10000;
 auto increment = size / logical_cores;
 auto overflow = size % logical_cores;
 
-void Random16(unsigned char *pAt, __m256i &timeValues, const __m256i &constantValues, __m256i &res)
+//returns 4x 64bit random values
+void Random64(unsigned char *pAt, __m256i &timeValues, const __m256i &constantValues, __m256i &res)
 {
+
     for (int i = 0; i < 4; ++i)
     {
-        timeValues[i] = (system_clock::now().time_since_epoch().count() - TimeNow); //4 x 16 bit values
+        timeValues[i] = (system_clock::now().time_since_epoch().count() - TimeNow); //4 x 64 bit values
     }
 
     res = _mm256_mul_epi32(timeValues, constantValues);
@@ -52,8 +54,7 @@ int main()
                 {
                     for (size_t k = i; k < i + increment; k += 4)
                     {
-                        if ((k + 4) < size)
-                            Random16(a.AtP(k, j), t, c, r);
+                        Random64(a.AtP(k, j), t, c, r);
                     }
                 }
                 //std::cout<<"finished "<<i<<'\n';
