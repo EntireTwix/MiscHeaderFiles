@@ -11,11 +11,6 @@ using namespace std::chrono;
 
 uint32_t TimeNow = system_clock::now().time_since_epoch().count(); // Fastest way to get epoch time
 
-auto logical_cores = std::thread::hardware_concurrency();
-auto size = 10000;
-auto increment = size / logical_cores;
-auto overflow = size % logical_cores;
-
 //returns 4x 64bit random values
 void Random64(unsigned char *pAt, __m256i &timeValues, const __m256i &constantValues, __m256i &res)
 {
@@ -34,6 +29,14 @@ void Random64(unsigned char *pAt, __m256i &timeValues, const __m256i &constantVa
 
 int main()
 {
+    std::cout << "input threads\n";
+    int inp;
+    std::cin >> inp;
+    auto logical_cores = inp;
+    auto size = 10000;
+    auto increment = size / logical_cores;
+    auto overflow = size % logical_cores;
+
     ThreadPool pool;
     double sum = 0;
 
@@ -47,7 +50,7 @@ int main()
         high_resolution_clock::time_point TimePointStart = high_resolution_clock::now();
         for (size_t i = 0; i < size - overflow; i += increment)
         {
-            pool.AddTask([&a, i, c]() {
+            pool.AddTask([&a, i, c, increment, size]() {
                 __m256i t, r;
 
                 for (size_t j = 0; j < size; ++j)
@@ -63,7 +66,7 @@ int main()
         high_resolution_clock::time_point TimePointEnd = high_resolution_clock::now();
         std::cout << pool.Jobs() << " start jobs\n";
 
-        //std::cout<<"Thread Task Compilation Time done: "<<duration_cast<duration<double>>(TimePointEnd - TimePointStart).count()<<'\n';
+        //std::cout << "Thread Task Compilation Time done: " << duration_cast<duration<double>>(TimePointEnd - TimePointStart).count() << '\n';
         TimePointStart = high_resolution_clock::now();
         pool.Start();
         while (pool.Jobs())
