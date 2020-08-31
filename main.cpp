@@ -32,7 +32,7 @@ int main()
         for (size_t i = 0; i < size - overflow; i += increment)
         {
             pool.AddTask([&a, i, increment, size]() {
-                size_t index = 0;
+                size_t index = i;
                 __m256i regi;
                 for (size_t j = 0; j < size; ++j)
                 {
