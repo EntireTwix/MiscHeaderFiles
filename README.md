@@ -1,14 +1,14 @@
-#compression.h
+compression.h
 ------------------------------------------
 an implementation of huffman coding
 
 
-#generics.h
+generics.h
 ------------------------------------------
 messing around with concepts feature added in C++20
 
 
-#main.cpp
+main.cpp
 ------------------------------------------
 an arbitray competition with friends,
 the task being to iterate through an array
@@ -21,24 +21,24 @@ disproportionally due to sys calls, this
 can be seen in past commits.
 
 
-#mat.h
+mat.h
 ------------------------------------------
 a matrix data structure used for ML, Matrix 
 competition and anything else thatll need it.
 
 
-#parse.h
+parse.h
 ------------------------------------------
 a small text parsing header
 
 
-#point.h
+point.h
 ------------------------------------------
 a data structure for points of varrying length
 and type
 
 
-#tpool.h
+tpool.h
 ------------------------------------------
 a light performance focused thread pool used in
 any thing i'll need multi threading for, for
