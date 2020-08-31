@@ -1,7 +1,6 @@
 #pragma once
 #include <stdexcept>
 #include <ostream>
-#include "generics.h"
 
 template <typename Type = float>
 class Mat
@@ -296,5 +295,3 @@ inline Mat<Type>::~Mat()
 {
     delete[] members;
 }
-
-//make initilizer list constructor
