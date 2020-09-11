@@ -215,7 +215,7 @@ inline void Mat<Type>::Func(void (*func)(Type &), Params... p)
 }
 
 template <typename Type>
-void Mat<Type>::Func(void (*func)(Type &))
+inline void Mat<Type>::Func(void (*func)(Type &))
 {
     for (Type *start = begin(); start != end(); ++start)
         func(*start);
