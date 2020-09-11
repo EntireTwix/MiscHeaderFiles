@@ -30,12 +30,8 @@ public:
     Mat Transpose() const;
     Mat CompoundingVecMult(const Mat &mat) const;
 
-    template <typename... Params>
-    void Func(void (*func)(Type &), Params... p);
     void Func(void (*func)(Type &));
 
-    template <typename... Params>
-    Mat Func(Type (*func)(Type), Params... p) const;
     Mat Func(Type (*func)(Type)) const;
     Mat Func(const Mat &mat, Type (*func)(Type, Type)) const;
 
@@ -207,29 +203,10 @@ inline Mat<Type> Mat<Type>::Transpose() const
 }
 
 template <typename Type>
-template <typename... Params>
-inline void Mat<Type>::Func(void (*func)(Type &), Params... p)
-{
-    for (Type *start = begin(); start != end(); ++start)
-        func(*start, p...);
-}
-
-template <typename Type>
 inline void Mat<Type>::Func(void (*func)(Type &))
 {
     for (Type *start = begin(); start != end(); ++start)
         func(*start);
-}
-
-template <typename Type>
-template <typename... Params>
-inline Mat<Type> Mat<Type>::Func(Type (*func)(Type), Params... p) const
-{
-    Mat res(SizeX(), SizeY());
-    for (size_t i = 0; i < sizeY; ++i)
-        for (size_t j = 0; j < sizeX; ++j)
-            res.At(j, i) = func(At(j, i), p...);
-    return res;
 }
 
 template <typename Type>
