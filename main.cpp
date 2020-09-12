@@ -9,6 +9,24 @@
 
 using namespace std::chrono;
 
+uint32_t TimeNow = system_clock::now().time_since_epoch().count(); // Fastest way to get epoch time
+
+//returns 4x 64bit random values
+void Random64(unsigned char *pAt, __m256i &timeValues, const __m256i &constantValues, __m256i &res)
+{
+
+    for (int i = 0; i < 4; ++i)
+    {
+        timeValues[i] = (system_clock::now().time_since_epoch().count() - TimeNow); //4 x 64 bit values
+    }
+
+    res = _mm256_mul_epi32(timeValues, constantValues);
+    for (int i = 0; i < 4; ++i)
+    {
+        pAt[i] = res[i] % 256;
+    }
+}
+
 int main()
 {
     std::cout << "input threads\n";
@@ -24,38 +42,42 @@ int main()
 
     Mat<uint_fast8_t> a(size, size);
 
-    high_resolution_clock::time_point TimePointStart,
-        TimePointEnd;
+    __m256i c = _mm256_set1_epi64x(48271);
+
     for (int z = 0; z < 100; ++z)
     {
         pool.Pause();
+        high_resolution_clock::time_point TimePointStart = high_resolution_clock::now();
         for (size_t i = 0; i < size - overflow; i += increment)
         {
-            pool.AddTask([&a, i, increment, size]() {
-                size_t index = i;
-                __m256i regi;
+            pool.AddTask([&a, i, c, increment, size]() {
+                __m256i t, r;
+
                 for (size_t j = 0; j < size; ++j)
                 {
-                    for (size_t k = i; k < i + increment; ++k)
+                    for (size_t k = i; k < i + increment; k += 4)
                     {
-                        //Ranadom64(a.At(index), index, regi);
-                        (*a.At(index)) = ((index * 35060) + 11) % 256;
-
-                        ++index;
+                        Random64(a.AtP(k, j), t, c, r);
                     }
                 }
+                //std::cout<<"finished "<<i<<'\n';
             });
         }
+        high_resolution_clock::time_point TimePointEnd = high_resolution_clock::now();
+        std::cout << pool.Jobs() << " start jobs\n";
 
+        //std::cout << "Thread Task Compilation Time done: " << duration_cast<duration<double>>(TimePointEnd - TimePointStart).count() << '\n';
         TimePointStart = high_resolution_clock::now();
         pool.Start();
         while (pool.Jobs())
         {
         }
         TimePointEnd = high_resolution_clock::now();
+        std::cout << pool.Jobs() << " end jobs\n";
 
         std::cout << std::setprecision(5) << std::fixed << "Runtime done: " << duration_cast<duration<double>>(TimePointEnd - TimePointStart).count() << "\n\n";
         sum += duration_cast<duration<double>>(TimePointEnd - TimePointStart).count();
+        //std::cout << a;
     }
     std::cout << (sum / 100) * -1 << '\n';
     std::cin.get();
