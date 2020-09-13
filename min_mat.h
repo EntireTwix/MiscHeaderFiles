@@ -29,10 +29,24 @@ public:
         for (size_t i = 0; i < mat.SizeY(); ++i)
         {
             for (size_t j = 0; j < mat.SizeX(); ++j)
-                os << (Type)mat.At(j, i) << ' ';
+                os << mat.At(j, i) << ' ';
             os << '\n';
         }
         return os;
+    }
+
+    std::string ToString() const
+    {
+        std::string res;
+        for (size_t i = 0; i < SizeY(); ++i)
+        {
+            for (size_t j = 0; j < SizeX(); ++j)
+            {
+                res += std::to_string(At(j, i)) + ' ';
+            }
+            res += '\n';
+        }
+        return res;
     }
 
     ~Mat();
@@ -48,7 +62,7 @@ inline Mat<Type>::Mat(size_t x, size_t y) : sizeX(x), sizeY(y)
 template <typename Type>
 inline Mat<Type>::Mat(size_t w, size_t h, std::initializer_list<Type> arr) : sizeX(w), sizeY(h)
 {
-    members = new float[w * h];
+    members = new Type[w * h];
     for (size_t i = 0; i < arr.size(); ++i)
     {
         members[i] = *(arr.begin() + i);
