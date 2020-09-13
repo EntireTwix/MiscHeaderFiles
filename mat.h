@@ -59,6 +59,20 @@ public:
         }
         return os;
     }
+    
+    std::string ToString() const
+    {
+        std::string res;
+        for (size_t i = 0; i < mat.SizeY(); ++i)
+        {
+            for (size_t j = 0; j < mat.SizeX(); ++j)
+            {
+                res += std::to_string(mat.At(j, i)) + ' ';
+            }
+            res += '\n';
+        }
+        return res;
+    }
 
     std::string Save() const
     {
