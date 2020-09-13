@@ -12,6 +12,7 @@ private:
 public:
     Mat() = default;
     explicit Mat(size_t x, size_t y);
+    explicit Mat(size_t w, size_t h, std::initializer_list<Type> membs);
     Mat(const Mat &mat);
     Mat(Mat &&mat);
     Mat operator=(const Mat &mat);
@@ -59,6 +60,22 @@ public:
         return os;
     }
 
+    std::string Save() const
+    {
+        std::string res = "";
+        res += std::to_string(sizeX) + ' ' + std::to_string(sizeY) + " {";
+        for (Type *start = &members[0]; start != &members[sizeX * sizeY]; ++start)
+        {
+            res += std::to_string(*start);
+            if (start != &members[sizeX * sizeY] - 1)
+            {
+                res += ", ";
+            }
+        }
+        res += "};";
+        return res;
+    }
+
     ~Mat();
 };
 
@@ -66,6 +83,17 @@ template <typename Type>
 inline Mat<Type>::Mat(size_t x, size_t y) : sizeX(x), sizeY(y)
 {
     members = new Type[sizeX * sizeY]{Type()};
+}
+
+//this constructor is unsafe and slow, is meant for loading from save
+template <typename Type>
+inline Mat<Type>::Mat(size_t w, size_t h, std::initializer_list<Type> arr) : sizeX(w), sizeY(h)
+{
+    members = new float[w * h];
+    for (size_t i = 0; i < arr.size(); ++i)
+    {
+        members[i] = *(arr.begin() + i);
+    }
 }
 
 template <typename Type>
