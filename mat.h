@@ -54,7 +54,7 @@ public:
         for (size_t i = 0; i < mat.SizeY(); ++i)
         {
             for (size_t j = 0; j < mat.SizeX(); ++j)
-                os << (Type)mat.At(j, i) << ' ';
+                os << mat.At(j, i) << ' ';
             os << '\n';
         }
         return os;
