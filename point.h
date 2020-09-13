@@ -1,6 +1,5 @@
 #pragma once
 #include <ostream>
-#include "generics.h"
 
 template <size_t sz = 0, Number Num = float>
 requires ArithmeticOperators<Num> &&EqualityComparable<Num> class Point
@@ -24,7 +23,7 @@ public:
 
         if (sz < list.size())
             throw std::invalid_argument("list of arguments can't be larger then initilized size");
-        for (unsigned i = 0; i < list.size(); ++i)
+        for (size_t i = 0; i < list.size(); ++i)
         {
             this->members[i] = params[i];
         }
@@ -32,14 +31,14 @@ public:
     }
     Point(const Point<sz, Num> &p) noexcept
     {
-        for (unsigned i = 0; i < p.Size(); ++i)
+        for (size_t i = 0; i < p.Size(); ++i)
         {
             members[i] = p[i];
         }
     }
     Point<sz, Num> operator=(const Point<sz, Num> &p) noexcept
     {
-        for (unsigned i = 0; i < p.sz; ++i)
+        for (size_t i = 0; i < p.sz; ++i)
         {
             members[i] = p[i];
         }
@@ -65,7 +64,7 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const Point<sz, Num> &p)
     {
         os << "{ ";
-        for (int i = 0; i < sz; ++i)
+        for (size_t i = 0; i < sz; ++i)
         {
             os << p[i] << ((i == sz - 1) ? " }" : ", ");
         }
@@ -88,28 +87,28 @@ public:
     Point<sz, Num> operator+(const Point<sz, Num> &a) const
     {
         Point<sz, Num> res;
-        for (int i = 0; i < sz; ++i)
+        for (size_t i = 0; i < sz; ++i)
             res[i] = members[i] + a[i];
         return res;
     }
     Point<sz, Num> operator-(const Point<sz, Num> &a) const
     {
         Point<sz, Num> res;
-        for (int i = 0; i < sz; ++i)
+        for (size_t i = 0; i < sz; ++i)
             res[i] = members[i] - a[i];
         return res;
     }
     Point<sz, Num> operator*(const Point<sz, Num> &a) const
     {
         Point<sz, Num> res;
-        for (int i = 0; i < sz; ++i)
+        for (size_t i = 0; i < sz; ++i)
             res[i] = members[i] + a[i];
         return res;
     }
     Point<sz, Num> operator/(const Point<sz, Num> &a) const
     {
         Point<sz, Num> res;
-        for (int i = 0; i < sz; ++i)
+        for (size_t i = 0; i < sz; ++i)
             res[i] = members[i] / a[i];
         return res;
     }
@@ -117,7 +116,7 @@ public:
     //equality operators
     bool operator==(const Point<sz, Num> &a) const
     {
-        for (int i = 0; i < sz; ++i)
+        for (size_t i = 0; i < sz; ++i)
             if (members[i] != a[i])
                 return false;
         return true;
@@ -127,6 +126,21 @@ public:
         return !(this == a); //god this is so fucking lazy
     }
 };
+
+namespace std
+{
+    template <size_t sz, typename T>
+    struct hash<Point<sz, T>>
+    {
+        std::size_t operator()(const Point<sz, T> &p) const
+        {
+            size_t res = 0;
+            for (size_t i = 0; i < sz; ++i)
+                res += std::hash<T>{}(p[i]) * (i + 3);
+            return res;
+        }
+    };
+} // namespace std
 
 using Point3 = Point<3>;
 using Point2 = Point<2>;
