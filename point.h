@@ -1,5 +1,6 @@
 #pragma once
 #include <ostream>
+#include "generics.h"
 
 template <size_t sz = 0, Number Num = float>
 requires ArithmeticOperators<Num> &&EqualityComparable<Num> class Point
