@@ -24,6 +24,15 @@ public:
     size_t SizeX() const;
     size_t SizeY() const;
 
+    Type *begin()
+    {
+        return &members[0];
+    }
+    Type *end()
+    {
+        return &members[sizeX * sizeY];
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const Mat &mat)
     {
         for (size_t i = 0; i < mat.SizeY(); ++i)
