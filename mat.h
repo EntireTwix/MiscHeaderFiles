@@ -33,7 +33,11 @@ public:
 
     void Func(void (*func)(Type &));
 
-    Mat Func(Type (*func)(Type)) const;
+    //fold expressions
+    template <typename Type, typename Fnc, typename... Params>
+    void Func(Fnc, Params...);
+
+    Mat Func(Type (*)(Type)) const;
     Mat Func(const Mat &mat, Type (*func)(Type, Type)) const;
 
     Mat operator+(const Mat &mat) const;
@@ -59,15 +63,15 @@ public:
         }
         return os;
     }
-    
+
     std::string ToString() const
     {
         std::string res;
-        for (size_t i = 0; i < mat.SizeY(); ++i)
+        for (size_t i = 0; i < SizeY(); ++i)
         {
-            for (size_t j = 0; j < mat.SizeX(); ++j)
+            for (size_t j = 0; j < SizeX(); ++j)
             {
-                res += std::to_string(mat.At(j, i)) + ' ';
+                res += std::to_string(At(j, i)) + ' ';
             }
             res += '\n';
         }
@@ -270,6 +274,23 @@ inline Mat<Type> Mat<Type>::Func(const Mat<Type> &mat, Type (*func)(Type, Type))
     for (size_t i = 0; i < sizeY; ++i)
         for (size_t j = 0; j < sizeX; ++j)
             res.At(j, i) = func(At(j, i), mat.At(j, i));
+    return res;
+}
+
+template <typename Type, typename... Params, typename Fnc>
+inline void Mat<Type>::Func(Fnc func, Params... p)
+{
+    for (Type *start = begin(); start != end(); ++start)
+        func(*start, p...);
+}
+
+template <typename Type>
+inline Mat<Type> Mat<Type>::Func(Type (*func)(Type, size_t x, size_t y) const
+{
+    Mat res(SizeX(), SizeY());
+    for (size_t i = 0; i < sizeY; ++i)
+        for (size_t j = 0; j < sizeX; ++j)
+            res.At(j, i) = func(At(j, i), p...);
     return res;
 }
 
