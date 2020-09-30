@@ -4,6 +4,8 @@
 #include <type_traits>
 
 //concepts 
+template <typename T>
+concept Func = requires { T(); };
 
 template <typename T>
 concept EqualityComparable = requires(T a, T b) 
