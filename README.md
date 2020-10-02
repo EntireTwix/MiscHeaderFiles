@@ -38,9 +38,10 @@ and type
 
 tpool.h
 ------------------------------------------
-a light performance focused thread pool used in
-any thing i'll need multi threading for, for
-example the matrix thing
+a light, performance focused thread pool used
+in the matrix challenge for example. It
+should be noted that each thread has its own queue 
+and its lock based
 
 stpool.h
 ------------------------------------------
