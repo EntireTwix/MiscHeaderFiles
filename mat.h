@@ -34,9 +34,14 @@ public:
     void Func(void (*func)(Type &));
 
     //fold expressions
-    template <typename Type, typename Fnc, typename... Params>
-    void Func(Fnc, Params...);
+    template <typename Fnc, typename... Params>
+    void Func(Fnc func, Params... p)
+    {
+        for (Type *start = begin(); start != end(); ++start)
+            func(*start, p...);
+    }
 
+    Mat Func(Type (*)(Type, size_t, size_t)) const;
     Mat Func(Type (*)(Type)) const;
     Mat Func(const Mat &mat, Type (*func)(Type, Type)) const;
 
@@ -277,20 +282,13 @@ inline Mat<Type> Mat<Type>::Func(const Mat<Type> &mat, Type (*func)(Type, Type))
     return res;
 }
 
-template <typename Type, typename... Params, typename Fnc>
-inline void Mat<Type>::Func(Fnc func, Params... p)
-{
-    for (Type *start = begin(); start != end(); ++start)
-        func(*start, p...);
-}
-
 template <typename Type>
-inline Mat<Type> Mat<Type>::Func(Type (*func)(Type, size_t x, size_t y) const
+inline Mat<Type> Mat<Type>::Func(Type (*func)(Type, size_t x, size_t y)) const
 {
     Mat res(SizeX(), SizeY());
     for (size_t i = 0; i < sizeY; ++i)
         for (size_t j = 0; j < sizeX; ++j)
-            res.At(j, i) = func(At(j, i), p...);
+            res.At(j, i) = func(At(j, i), j, i);
     return res;
 }
 
