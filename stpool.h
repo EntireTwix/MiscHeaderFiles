@@ -16,11 +16,6 @@ private:
     uint_fast8_t threadCount;
     std::atomic<size_t> extraSize = 0;
 
-    void Stop()
-    {
-        stopped = true;
-    }
-
 public:
     ThreadPool()
     {
@@ -71,7 +66,8 @@ public:
 
     ~ThreadPool()
     {
-        Stop();
+        stopped = true;
+
         //closing threads properly
         for (size_t i = 0; i < threadCount; ++i)
             if (workers[i].joinable())
