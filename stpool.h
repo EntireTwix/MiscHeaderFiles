@@ -37,9 +37,11 @@ public:
                     }
                     if (jobs.was_size() && !paused)
                     {
-                        while (!jobs.try_pop(job))
+                        while (!jobs.try_pop(job) && !stopped)
                         {
                         }
+                        if (stopped)
+                            break;
                         job();
                         --extraSize;
                     }
