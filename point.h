@@ -145,3 +145,5 @@ namespace std
 
 using Point3 = Point<3>;
 using Point2 = Point<2>;
+using RGB = Point<3, uint8_t>;
+using RGBA = Point<4, uint8_t>;
