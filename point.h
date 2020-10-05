@@ -1,7 +1,7 @@
-#include "MiscHeaderFiles-master/generics.h"
+#include "generics.h"
 
 template <typename T, size_t sz>
-requires EqualityComparable<T> class rPoint
+requires EqualityComparable<T> class Point
 {
 private:
     void Set(size_t index, const T &value)
@@ -20,7 +20,7 @@ protected:
     T members[sz];
 
 public:
-    rPoint()
+    Point()
     {
         for (size_t i = 0; i < sz; ++i)
         {
@@ -28,7 +28,7 @@ public:
         }
     }
     template <typename... Params>
-    rPoint(Params... args)
+    Point(Params... args)
     {
         if constexpr (sizeof...(args) != sz)
             throw std::invalid_argument("amount of args must match point size");
@@ -48,7 +48,7 @@ public:
             throw std::out_of_range("index given is too big");
         return members[index];
     }
-    bool operator==(const rPoint<T, sz> &p) const
+    bool operator==(const Point<T, sz> &p) const
     {
         for (size_t i = 0; i < sz; ++i)
         {
@@ -57,7 +57,7 @@ public:
         }
         return true;
     }
-    bool operator!=(const rPoint<T, sz> &p) const
+    bool operator!=(const Point<T, sz> &p) const
     {
         for (size_t i = 0; i < sz; ++i)
         {
@@ -66,7 +66,7 @@ public:
         }
         return false;
     }
-    friend std::ostream &operator<<(std::ostream &os, const rPoint<T, sz> &p)
+    friend std::ostream &operator<<(std::ostream &os, const Point<T, sz> &p)
     {
         os << '(';
         for (size_t i = 0; i < sz; ++i)
@@ -81,38 +81,38 @@ public:
 
 //Vec
 template <typename T, size_t sz>
-struct Vec : public rPoint<T, sz>
+struct Vec : public Point<T, sz>
 {
-    rPoint<T, sz> operator+(const rPoint<T, sz> &p) const
+    Point<T, sz> operator+(const Point<T, sz> &p) const
     {
-        rPoint<T, sz> res;
+        Point<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] + p.members[i];
         }
         return res;
     }
-    rPoint<T, sz> operator-(const rPoint<T, sz> &p) const
+    Point<T, sz> operator-(const Point<T, sz> &p) const
     {
-        rPoint<T, sz> res;
+        Point<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] - p.members[i];
         }
         return res;
     }
-    rPoint<T, sz> operator*(const rPoint<T, sz> &p) const
+    Point<T, sz> operator*(const Point<T, sz> &p) const
     {
-        rPoint<T, sz> res;
+        Point<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] * p.members[i];
         }
         return res;
     }
-    rPoint<T, sz> operator/(const rPoint<T, sz> &p) const
+    Point<T, sz> operator/(const Point<T, sz> &p) const
     {
-        rPoint<T, sz> res;
+        Point<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] / p.members[i];
@@ -120,6 +120,10 @@ struct Vec : public rPoint<T, sz>
         return res;
     }
 };
+
+//SafeVec
+template <typename T, size_t sz>
+requires ArithmeticOperators<T> using SafeVec = Vec<T, sz>;
 
 //Vec2
 template <typename T>
@@ -130,7 +134,7 @@ template <typename T>
 using Vec3 = Vec<T, 3>;
 
 //RGB
-struct RGB : public Vec3<uint8_t>
+struct RGB : public SafeVec<uint8_t, 3>
 {
     uint8_t &r = members[0];
     uint8_t &g = members[1];
@@ -143,7 +147,7 @@ struct RGB : public Vec3<uint8_t>
 };
 
 //RGBA
-struct RGBA : public Vec3<uint8_t>
+struct RGBA : public SafeVec<uint8_t, 4>
 {
     uint8_t &r = members[0];
     uint8_t &g = members[1];
