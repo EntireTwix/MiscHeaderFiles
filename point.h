@@ -1,149 +1,162 @@
-#pragma once
-#include <ostream>
-#include "generics.h"
+#include "MiscHeaderFiles-master/generics.h"
 
-template <size_t sz = 0, Number Num = float>
-requires EqualityComparable<Num> class Point
+template <typename T, size_t sz>
+requires EqualityComparable<T> class rPoint
 {
 private:
-    Num *members = new Num[sz == 0 ? 1 : sz]{0};
+    void Set(size_t index, const T &value)
+    {
+        members[index] = value;
+    }
+
+    template <typename... Params>
+    void Set(size_t index, const T &head, Params... rest)
+    {
+        members[index] = head;
+        Set(index + 1, rest...);
+    }
+
+protected:
+    T members[sz];
 
 public:
-    Point() = default;
-    Point(std::initializer_list<Num> list)
+    rPoint()
     {
-        if (list.size() == 0)
-            throw std::invalid_argument("list must be atleast 1 item");
-        Num *params = new Num[list.size()];
-        int j = 0;
-        for (Num n : list)
-        {
-            params[j] = n;
-            ++j;
-        }
-
-        if (sz < list.size())
-            throw std::invalid_argument("list of arguments can't be larger then initilized size");
-        for (size_t i = 0; i < list.size(); ++i)
-        {
-            this->members[i] = params[i];
-        }
-        delete[] params;
-    }
-    Point(const Point<sz, Num> &p) noexcept
-    {
-        for (size_t i = 0; i < p.Size(); ++i)
-        {
-            members[i] = p[i];
-        }
-    }
-    Point<sz, Num> operator=(const Point<sz, Num> &p) noexcept
-    {
-        for (size_t i = 0; i < p.sz; ++i)
-        {
-            members[i] = p[i];
-        }
-        return *this;
-    }
-    Point(Point<sz, Num> &&p) noexcept
-    {
-        members = p.members;
-        p.members = nullptr;
-    }
-    Point<sz, Num> operator=(Point<sz, Num> &&p) noexcept
-    {
-        members = p.members;
-        p.members = nullptr;
-        return *this;
-    }
-    ~Point() { delete[] members; }
-
-    size_t Size() const
-    {
-        return sz;
-    }
-    friend std::ostream &operator<<(std::ostream &os, const Point<sz, Num> &p)
-    {
-        os << "{ ";
         for (size_t i = 0; i < sz; ++i)
         {
-            os << p[i] << ((i == sz - 1) ? " }" : ", ");
+            members[i] = T();
         }
-        return os;
     }
-    Num &operator[](int pos)
+    template <typename... Params>
+    rPoint(Params... args)
     {
-        if (pos >= sz || pos < 0)
-            throw new std::out_of_range("can't index out of size");
-        return members[pos];
-    }
-    Num operator[](int pos) const
-    {
-        if (pos >= sz || pos < 0)
-            throw new std::out_of_range("can't index out of size");
-        return members[pos];
+        if constexpr (sizeof...(args) != sz)
+            throw std::invalid_argument("amount of args must match point size");
+
+        Set(0, args...);
     }
 
-    //arithmetic operators
-    Point<sz, Num> operator+(const Point<sz, Num> &a) const
+    T &operator[](size_t index)
     {
-        Point<sz, Num> res;
-        for (size_t i = 0; i < sz; ++i)
-            res[i] = members[i] + a[i];
-        return res;
+        if (index >= sz)
+            throw std::out_of_range("index given is too big");
+        return members[index];
     }
-    Point<sz, Num> operator-(const Point<sz, Num> &a) const
+    T operator[](size_t index) const
     {
-        Point<sz, Num> res;
-        for (size_t i = 0; i < sz; ++i)
-            res[i] = members[i] - a[i];
-        return res;
+        if (index >= sz)
+            throw std::out_of_range("index given is too big");
+        return members[index];
     }
-    Point<sz, Num> operator*(const Point<sz, Num> &a) const
-    {
-        Point<sz, Num> res;
-        for (size_t i = 0; i < sz; ++i)
-            res[i] = members[i] + a[i];
-        return res;
-    }
-    Point<sz, Num> operator/(const Point<sz, Num> &a) const
-    {
-        Point<sz, Num> res;
-        for (size_t i = 0; i < sz; ++i)
-            res[i] = members[i] / a[i];
-        return res;
-    }
-
-    //equality operators
-    bool operator==(const Point<sz, Num> &a) const
+    bool operator==(const rPoint<T, sz> &p) const
     {
         for (size_t i = 0; i < sz; ++i)
-            if (members[i] != a[i])
+        {
+            if (members[i] != p.members[i])
                 return false;
+        }
         return true;
     }
-    bool operator!=(const Point<sz, Num> &a) const
+    bool operator!=(const rPoint<T, sz> &p) const
     {
-        return !(this == a); //god this is so fucking lazy
+        for (size_t i = 0; i < sz; ++i)
+        {
+            if (members[i] != p.members[i])
+                return true;
+        }
+        return false;
+    }
+    friend std::ostream &operator<<(std::ostream &os, const rPoint<T, sz> &p)
+    {
+        os << '(';
+        for (size_t i = 0; i < sz; ++i)
+        {
+            os << p.members[i] << (i + 1 == sz ? "" : ", ");
+        }
+        return os << ')';
     }
 };
 
-namespace std
-{
-    template <size_t sz, typename T>
-    struct hash<Point<sz, T>>
-    {
-        std::size_t operator()(const Point<sz, T> &p) const
-        {
-            size_t res = 0;
-            for (size_t i = 0; i < sz; ++i)
-                res += std::hash<T>{}(p[i]) * (i + 3);
-            return res;
-        }
-    };
-} // namespace std
+//generic Func
 
-using Point3 = Point<3>;
-using Point2 = Point<2>;
-using RGB = Point<3, uint8_t>;
-using RGBA = Point<4, uint8_t>;
+//Vec
+template <typename T, size_t sz>
+struct Vec : public rPoint<T, sz>
+{
+    rPoint<T, sz> operator+(const rPoint<T, sz> &p) const
+    {
+        rPoint<T, sz> res;
+        for (size_t i = 0; i < sz; ++i)
+        {
+            res.members[i] = this->members[i] + p.members[i];
+        }
+        return res;
+    }
+    rPoint<T, sz> operator-(const rPoint<T, sz> &p) const
+    {
+        rPoint<T, sz> res;
+        for (size_t i = 0; i < sz; ++i)
+        {
+            res.members[i] = this->members[i] - p.members[i];
+        }
+        return res;
+    }
+    rPoint<T, sz> operator*(const rPoint<T, sz> &p) const
+    {
+        rPoint<T, sz> res;
+        for (size_t i = 0; i < sz; ++i)
+        {
+            res.members[i] = this->members[i] * p.members[i];
+        }
+        return res;
+    }
+    rPoint<T, sz> operator/(const rPoint<T, sz> &p) const
+    {
+        rPoint<T, sz> res;
+        for (size_t i = 0; i < sz; ++i)
+        {
+            res.members[i] = this->members[i] / p.members[i];
+        }
+        return res;
+    }
+};
+
+//Vec2
+template <typename T>
+using Vec2 = Vec<T, 2>;
+
+//Vec3
+template <typename T>
+using Vec3 = Vec<T, 3>;
+
+//RGB
+struct RGB : public Vec3<uint8_t>
+{
+    uint8_t &r = members[0];
+    uint8_t &g = members[1];
+    uint8_t &b = members[2];
+
+    friend std::ostream &operator<<(std::ostream &os, const RGB &p)
+    {
+        return os << '(' << (int)p.r << ", " << (int)p.g << ", " << (int)p.b << ')';
+    }
+};
+
+//RGBA
+struct RGBA : public Vec3<uint8_t>
+{
+    uint8_t &r = members[0];
+    uint8_t &g = members[1];
+    uint8_t &b = members[2];
+    uint8_t &a = members[3];
+
+    friend std::ostream &operator<<(std::ostream &os, const RGB &p)
+    {
+        return os << '(' << (int)p.r << ", " << (int)p.g << ", " << (int)p.b << ", " << (int)p.a << ')';
+    }
+};
+
+using Point2i = Vec2<int>;
+using Point3i = Vec3<int>;
+using Point2f = Vec2<float>;
+using Point3f = Vec3<float>;
