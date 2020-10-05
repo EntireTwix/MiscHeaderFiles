@@ -6,7 +6,7 @@ generics.h
 ------------------------------------------
 messing around with concepts feature added in C++20
 
-main.cpp
+MatrixChallenge.cpp
 ------------------------------------------
 an arbitray competition with friends,
 the task being to iterate through an array
