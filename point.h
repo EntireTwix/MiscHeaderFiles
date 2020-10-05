@@ -3,7 +3,7 @@
 template <typename T, size_t sz>
 requires EqualityComparable<T> class Point
 {
-private:
+protected:
     void Set(size_t index, const T &value)
     {
         members[index] = value;
@@ -16,7 +16,6 @@ private:
         Set(index + 1, rest...);
     }
 
-protected:
     T members[sz];
 
 public:
@@ -83,36 +82,53 @@ public:
 template <typename T, size_t sz>
 struct Vec : public Point<T, sz>
 {
-    Point<T, sz> operator+(const Point<T, sz> &p) const
+    Vec()
     {
-        Point<T, sz> res;
+        for (size_t i = 0; i < sz; ++i)
+        {
+            this->members[i] = T();
+        }
+    }
+
+    template <typename... Params>
+    Vec(Params... args)
+    {
+        if constexpr (sizeof...(args) != sz)
+            throw std::invalid_argument("amount of args must match point size");
+
+        this->Set(0, args...);
+    }
+
+    Vec<T, sz> operator+(const Vec<T, sz> &p) const
+    {
+        Vec<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] + p.members[i];
         }
         return res;
     }
-    Point<T, sz> operator-(const Point<T, sz> &p) const
+    Vec<T, sz> operator-(const Vec<T, sz> &p) const
     {
-        Point<T, sz> res;
+        Vec<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] - p.members[i];
         }
         return res;
     }
-    Point<T, sz> operator*(const Point<T, sz> &p) const
+    Vec<T, sz> operator*(const Vec<T, sz> &p) const
     {
-        Point<T, sz> res;
+        Vec<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] * p.members[i];
         }
         return res;
     }
-    Point<T, sz> operator/(const Point<T, sz> &p) const
+    Vec<T, sz> operator/(const Vec<T, sz> &p) const
     {
-        Point<T, sz> res;
+        Vec<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] / p.members[i];
@@ -136,6 +152,13 @@ using Vec3 = SafeVec<T, 3>;
 //RGB
 struct RGB : public Vec<uint8_t, 3>
 {
+    RGB()
+    {
+        r = g = b = 0;
+    }
+
+    RGB(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
+
     uint8_t &r = members[0];
     uint8_t &g = members[1];
     uint8_t &b = members[2];
@@ -149,6 +172,13 @@ struct RGB : public Vec<uint8_t, 3>
 //RGBA
 struct RGBA : public Vec<uint8_t, 4>
 {
+    RGBA()
+    {
+        r = g = b = a = 0;
+    }
+
+    RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : r(r), g(g), b(b), a(a) {}
+
     uint8_t &r = members[0];
     uint8_t &g = members[1];
     uint8_t &b = members[2];
