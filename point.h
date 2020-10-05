@@ -127,14 +127,14 @@ requires ArithmeticOperators<T> using SafeVec = Vec<T, sz>;
 
 //Vec2
 template <typename T>
-using Vec2 = Vec<T, 2>;
+using Vec2 = SafeVec<T, 2>;
 
 //Vec3
 template <typename T>
-using Vec3 = Vec<T, 3>;
+using Vec3 = SafeVec<T, 3>;
 
 //RGB
-struct RGB : public SafeVec<uint8_t, 3>
+struct RGB : public Vec<uint8_t, 3>
 {
     uint8_t &r = members[0];
     uint8_t &g = members[1];
@@ -147,14 +147,14 @@ struct RGB : public SafeVec<uint8_t, 3>
 };
 
 //RGBA
-struct RGBA : public SafeVec<uint8_t, 4>
+struct RGBA : public Vec<uint8_t, 4>
 {
     uint8_t &r = members[0];
     uint8_t &g = members[1];
     uint8_t &b = members[2];
     uint8_t &a = members[3];
 
-    friend std::ostream &operator<<(std::ostream &os, const RGB &p)
+    friend std::ostream &operator<<(std::ostream &os, const RGBA &p)
     {
         return os << '(' << (int)p.r << ", " << (int)p.g << ", " << (int)p.b << ", " << (int)p.a << ')';
     }
