@@ -31,20 +31,6 @@ public:
     Mat Transpose() const;
     Mat CompoundingVecMult(const Mat &mat) const;
 
-    void Func(void (*func)(Type &));
-
-    //fold expressions
-    template <typename Fnc, typename... Params>
-    void Func(Fnc func, Params... p)
-    {
-        for (Type *start = begin(); start != end(); ++start)
-            func(*start, p...);
-    }
-
-    Mat Func(Type (*)(Type, size_t, size_t)) const;
-    Mat Func(Type (*)(Type)) const;
-    Mat Func(const Mat &mat, Type (*func)(Type, Type)) const;
-
     Mat operator+(const Mat &mat) const;
     Mat operator-(const Mat &mat) const;
     Mat operator*(const Mat &mat) const;
@@ -97,6 +83,76 @@ public:
         }
         res += "};";
         return res;
+    }
+
+    Mat ApplyFunc(std::function<Type(Type)> Func)
+    {
+        Mat<Type> res(sizeX, sizeY);
+        for (int i = 0; i < sizeY; ++i)
+        {
+            for (int j = 0; j < sizeX; ++j)
+            {
+                res.At(j, i) = Func(At(j, i));
+            }
+        }
+        return res;
+    }
+    Mat ApplyFunc(std::function<Type(Type, Type)> Func, const Mat<Type> &p)
+    {
+        Mat<Type> res(sizeX, sizeY);
+        for (int i = 0; i < sizeY; ++i)
+        {
+            for (int j = 0; j < sizeX; ++j)
+            {
+                res.At(j, i) = Func(At(j, i), p.At(j, i));
+            }
+        }
+        return res;
+    }
+
+    void ApplyFunc(std::function<void(Type &)> Func)
+    {
+        for (Type &e : members)
+        {
+            Func(e);
+        }
+    }
+
+    //cord variants
+    Mat ApplyFunc(std::function<Type(Type, size_t, size_t)> Func)
+    {
+        Mat<Type> res(sizeX, sizeY);
+        for (int i = 0; i < sizeY; ++i)
+        {
+            for (int j = 0; j < sizeX; ++j)
+            {
+                res.At(j, i) = Func(At(j, i), j, i);
+            }
+        }
+        return res;
+    }
+    Mat ApplyFunc(std::function<Type(Type, Type, size_t, size_t)> Func, const Mat<Type> &p)
+    {
+        Mat<Type> res(sizeX, sizeY);
+        for (int i = 0; i < sizeY; ++i)
+        {
+            for (int j = 0; j < sizeX; ++j)
+            {
+                res.At(j, i) = Func(At(j, i), p.At(j, i), j, i);
+            }
+        }
+        return res;
+    }
+
+    void ApplyFunc(std::function<void(Type &, size_t, size_t)> Func)
+    {
+        for (int i = 0; i < sizeY; ++i)
+        {
+            for (int j = 0; j < sizeX; ++j)
+            {
+                Func(At(j, i), j, i);
+            }
+        }
     }
 
     ~Mat();
@@ -250,45 +306,6 @@ inline Mat<Type> Mat<Type>::Transpose() const
     for (size_t i = 0; i < sizeY; ++i)
         for (size_t j = 0; j < sizeX; ++j)
             res.At(i, j) = At(j, i);
-    return res;
-}
-
-template <typename Type>
-inline void Mat<Type>::Func(void (*func)(Type &))
-{
-    for (Type *start = begin(); start != end(); ++start)
-        func(*start);
-}
-
-template <typename Type>
-inline Mat<Type> Mat<Type>::Func(Type (*func)(Type)) const
-{
-    Mat res(SizeX(), SizeY());
-    for (size_t i = 0; i < sizeY; ++i)
-        for (size_t j = 0; j < sizeX; ++j)
-            res.At(j, i) = func(At(j, i));
-    return res;
-}
-
-template <typename Type>
-inline Mat<Type> Mat<Type>::Func(const Mat<Type> &mat, Type (*func)(Type, Type)) const
-{
-    if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
-        throw std::invalid_argument("matrices must be the same dimensions");
-    Mat res(SizeX(), SizeY());
-    for (size_t i = 0; i < sizeY; ++i)
-        for (size_t j = 0; j < sizeX; ++j)
-            res.At(j, i) = func(At(j, i), mat.At(j, i));
-    return res;
-}
-
-template <typename Type>
-inline Mat<Type> Mat<Type>::Func(Type (*func)(Type, size_t x, size_t y)) const
-{
-    Mat res(SizeX(), SizeY());
-    for (size_t i = 0; i < sizeY; ++i)
-        for (size_t j = 0; j < sizeX; ++j)
-            res.At(j, i) = func(At(j, i), j, i);
     return res;
 }
 
