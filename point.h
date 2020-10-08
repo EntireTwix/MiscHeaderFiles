@@ -1,4 +1,5 @@
 #include "generics.h"
+#include <functional>
 #include <array>
 
 template <typename T, size_t sz>
@@ -10,8 +11,7 @@ protected:
         members[index] = value;
     }
 
-    template <typename... Params>
-    void Set(size_t index, const T &head, Params... rest)
+    void Set(size_t index, const T &head, auto... rest)
     {
         members[index] = head;
         Set(index + 1, rest...);
@@ -21,9 +21,7 @@ protected:
 
 public:
     Point() = default;
-
-    template <typename... Params>
-    Point(Params... args)
+    Point(auto... args)
     {
         if constexpr (sizeof...(args) != sz)
             throw std::invalid_argument("amount of args must match point size");
@@ -71,6 +69,59 @@ public:
         return os << ')';
     }
 
+    Point ApplyFunc(std::function<T(T)> Func)
+    {
+        Point<T, sz> res;
+        for (size_t i = 0; i < sz; ++i)
+        {
+            res.members[i] = Func(members[i]);
+        }
+        return res;
+    }
+    Point ApplyFunc(std::function<T(T, T)> Func, const Point<T, sz> &p)
+    {
+        Point<T, sz> res;
+        for (size_t i = 0; i < sz; ++i)
+        {
+            res.members[i] = Func(members[i], p.members[i]);
+        }
+        return res;
+    }
+    void ApplyFunc(std::function<void(T &)> Func)
+    {
+        for (T &e : members)
+        {
+            Func(e);
+        }
+    }
+
+    //cord variants
+    Point ApplyFunc(std::function<T(T, size_t)> Func)
+    {
+        Point<T, sz> res;
+        for (size_t i = 0; i < sz; ++i)
+        {
+            res.members[i] = Func(members[i], i);
+        }
+        return res;
+    }
+    Point ApplyFunc(std::function<T(T, T, size_t)> Func, const Point<T, sz> &p)
+    {
+        Point<T, sz> res;
+        for (size_t i = 0; i < sz; ++i)
+        {
+            res.members[i] = Func(members[i], p.members[i], i);
+        }
+        return res;
+    }
+    void ApplyFunc(std::function<void(T &, size_t)> Func)
+    {
+        for (size_t i = 0; i < sz; ++i)
+        {
+            Func(members[i], i);
+        }
+    }
+
     constexpr size_t size() const
     {
         return sz;
@@ -83,16 +134,8 @@ public:
 template <typename T, size_t sz>
 struct Vec : public Point<T, sz>
 {
-    Vec()
-    {
-        for (size_t i = 0; i < sz; ++i)
-        {
-            this->members[i] = T();
-        }
-    }
-
-    template <typename... Params>
-    Vec(Params... args)
+    Vec() = default;
+    Vec(auto... args)
     {
         if constexpr (sizeof...(args) != sz)
             throw std::invalid_argument("amount of args must match point size");
