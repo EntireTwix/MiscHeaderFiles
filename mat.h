@@ -1,6 +1,7 @@
 #pragma once
 #include <stdexcept>
 #include <ostream>
+#include <functiona>
 
 template <typename Type = float>
 class Mat
