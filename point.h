@@ -27,6 +27,7 @@ public:
             members[i] = T();
         }
     }
+
     template <typename... Params>
     Point(Params... args)
     {
@@ -74,6 +75,11 @@ public:
             os << p.members[i] << (i + 1 == sz ? "" : ", ");
         }
         return os << ')';
+    }
+
+    constexpr size_t size() const
+    {
+        return sz;
     }
 };
 
