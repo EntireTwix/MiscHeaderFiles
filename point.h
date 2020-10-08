@@ -20,13 +20,7 @@ protected:
     std::array<T, sz> members;
 
 public:
-    Point()
-    {
-        for (size_t i = 0; i < sz; ++i)
-        {
-            members[i] = T();
-        }
-    }
+    Point() = default;
 
     template <typename... Params>
     Point(Params... args)
