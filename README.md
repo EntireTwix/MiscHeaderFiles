@@ -13,10 +13,7 @@ the task being to iterate through an array
 (thats indexable like a matrix), for each 
 element re-seeding random func with current 
 index and then setting random value as fast 
-as possible. Originally this was seeded with
-difference in time but this impacted langs
-disproportionally due to sys calls, this
-can be seen in past commits.
+as possible.
 
 mat.h
 ------------------------------------------
