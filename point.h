@@ -1,4 +1,5 @@
 #include "generics.h"
+#include <array>
 
 template <typename T, size_t sz>
 requires EqualityComparable<T> class Point
@@ -16,7 +17,7 @@ protected:
         Set(index + 1, rest...);
     }
 
-    T members[sz];
+    std::array<T, sz> members;
 
 public:
     Point()
