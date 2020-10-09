@@ -31,6 +31,7 @@ public:
     Mat operator+(const Mat &mat) const;
     Mat operator-(const Mat &mat) const;
     Mat operator*(const Mat &mat) const;
+    Mat operator/(const Mat &mat) const;
 
     Type *begin()
     {
@@ -285,6 +286,18 @@ inline Mat<Type> Mat<Type>::operator*(const Mat<Type> &mat) const
     for (size_t i = 0; i < SizeY(); ++i)
         for (size_t j = 0; j < SizeX(); ++j)
             res.At(j, i) = At(j, i) * mat.At(j, i);
+    return res;
+}
+
+template <typename Type>
+inline Mat<Type> Mat<Type>::operator*(const Mat<Type> &mat) const
+{
+    if ((mat.SizeX() != SizeX()) || (mat.SizeY() != SizeY()))
+        throw std::invalid_argument("operator*: parameter must match the dimensions of this");
+    Mat res(SizeX(), SizeY());
+    for (size_t i = 0; i < SizeY(); ++i)
+        for (size_t j = 0; j < SizeX(); ++j)
+            res.At(j, i) = At(j, i) / mat.At(j, i);
     return res;
 }
 
