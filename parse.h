@@ -58,7 +58,7 @@ public:
 		return result;
 	}
 
-	static void Save(const std::string_view &location, std::vector<std::vector<std::string>> vec, char sep, unsigned short int thresholdSize)
+	static void Save(const std::string_view &location, const std::vector<std::vector<std::string>> &vec, char sep, unsigned short int thresholdSize)
 	{
 		std::ofstream outputFile(location);
 		for (int i = 0; i < vec.size(); ++i)
@@ -75,7 +75,7 @@ public:
 		outputFile.close();
 	}
 	template <typename T>
-	static void Save(const std::string_view &location, std::vector<T> vec, char sep)
+	static void Save(const std::string_view &location, const std::vector<T> &vec, char sep)
 	{
 		std::ofstream outputFile(location);
 		for (int i = 0; i < vec.size(); ++i)
@@ -86,7 +86,7 @@ public:
 	}
 
 	template <typename T>
-	static void Save(const std::string_view &location, std::vector<T> vec)
+	static void Save(const std::string_view &location, const std::vector<T> &vec)
 	{
 		std::ofstream outputFile(location);
 		for (int i = 0; i < vec.size(); ++i)
