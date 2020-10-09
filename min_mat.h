@@ -1,7 +1,7 @@
 #pragma once
 #include <stdexcept>
 #include <ostream>
-#include <functiona;>
+#include <functional>
 #include <array>
 
 template <typename Type = float, size_t width, size_t height>
