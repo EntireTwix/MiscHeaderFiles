@@ -6,27 +6,13 @@ template <typename T, size_t sz>
 requires EqualityComparable<T> class Point
 {
 protected:
-    void Set(size_t index, const T &value)
-    {
-        members[index] = value;
-    }
-
-    void Set(size_t index, const T &head, auto... rest)
-    {
-        members[index] = head;
-        Set(index + 1, rest...);
-    }
-
     std::array<T, sz> members;
 
 public:
     Point() = default;
-    Point(auto... args)
+    Point(std::array<T, sz> args)
     {
-        if constexpr (sizeof...(args) != sz)
-            throw std::invalid_argument("amount of args must match point size");
-
-        Set(0, args...);
+        members = args;
     }
 
     T &operator[](size_t index)
@@ -135,12 +121,9 @@ template <typename T, size_t sz>
 struct Vec : public Point<T, sz>
 {
     Vec() = default;
-    Vec(auto... args)
+    Vec(std::array<T, sz> args)
     {
-        if constexpr (sizeof...(args) != sz)
-            throw std::invalid_argument("amount of args must match point size");
-
-        this->Set(0, args...);
+        members = args;
     }
 
     Vec<T, sz> operator+(const Vec<T, sz> &p) const
