@@ -1,6 +1,6 @@
 #pragma once
 #include "generics.h"
-#include <stdexcept> 
+#include <stdexcept>
 #include <ostream>
 #include <functional>
 #include <array>
@@ -13,7 +13,7 @@ protected:
 
 public:
     Point() = default;
-    Point(const std::array<T, sz>&& args)
+    Point(const std::array<T, sz> &&args)
     {
         members = args;
     }
@@ -180,22 +180,31 @@ template <typename T>
 using Vec3 = SafeVec<T, 3>;
 
 //RGB
-struct RGB : public Vec<uint8_t, 3>
+struct RGB : public Vec<uint_fast8_t, 3>
 {
     RGB()
     {
-        r = g = b = 0;
+        r() = g() = b() = 0;
     }
 
-    RGB(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
+    RGB(uint8_t R, uint8_t G, uint8_t B)
+    {
+        r() = R;
+        g() = G;
+        b() = B;
+    }
 
-    uint8_t &r = members[0];
-    uint8_t &g = members[1];
-    uint8_t &b = members[2];
+    uint_fast8_t &r() { return members[0]; }
+    uint_fast8_t &g() { return members[1]; }
+    uint_fast8_t &b() { return members[2]; }
+
+    uint_fast8_t r() const { return members[0]; }
+    uint_fast8_t g() const { return members[1]; }
+    uint_fast8_t b() const { return members[2]; }
 
     friend std::ostream &operator<<(std::ostream &os, const RGB &p)
     {
-        return os << '(' << (int)p.r << ", " << (int)p.g << ", " << (int)p.b << ')';
+        return os << '(' << (int)p.r() << ", " << (int)p.g() << ", " << (int)p.b() << ')';
     }
 };
 
@@ -204,19 +213,30 @@ struct RGBA : public Vec<uint8_t, 4>
 {
     RGBA()
     {
-        r = g = b = a = 0;
+        r() = g() = b() = a() = 0;
     }
 
-    RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : r(r), g(g), b(b), a(a) {}
+    RGBA(uint8_t R, uint8_t G, uint8_t B, uint8_t A)
+    {
+        r() = R;
+        g() = G;
+        b() = B;
+        a() = A;
+    }
 
-    uint8_t &r = members[0];
-    uint8_t &g = members[1];
-    uint8_t &b = members[2];
-    uint8_t &a = members[3];
+    uint_fast8_t &r() { return members[0]; }
+    uint_fast8_t &g() { return members[1]; }
+    uint_fast8_t &b() { return members[2]; }
+    uint_fast8_t &a() { return members[3]; }
+
+    uint_fast8_t r() const { return members[0]; }
+    uint_fast8_t g() const { return members[1]; }
+    uint_fast8_t b() const { return members[2]; }
+    uint_fast8_t a() const { return members[3]; }
 
     friend std::ostream &operator<<(std::ostream &os, const RGBA &p)
     {
-        return os << '(' << (int)p.r << ", " << (int)p.g << ", " << (int)p.b << ", " << (int)p.a << ')';
+        return os << '(' << (int)p.r() << ", " << (int)p.g() << ", " << (int)p.b() << ", " << (int)p.a() << ')';
     }
 };
 
