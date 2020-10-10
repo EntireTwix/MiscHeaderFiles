@@ -1,4 +1,4 @@
-compression.h
+compression.h (old)
 ------------------------------------------
 an implementation of huffman coding, was
 an pretty early commit, not intended for use
@@ -7,7 +7,7 @@ generics.h
 ------------------------------------------
 messing around with concepts feature added in C++20
 
-MatrixChallenge.cpp
+MatrixChallenge.cpp (niche)
 ------------------------------------------
 an arbitray competition with friends,
 the task being to iterate through an array
@@ -16,7 +16,7 @@ element re-seeding random func with current
 index and then setting random value as fast 
 as possible.
 
-log.h
+log.h (incomplete)
 ------------------------------------------
 a small logger for debugging and such
 
@@ -29,7 +29,7 @@ min_mat.h
 ------------------------------------------
 a light version of mat.h for simpler usecases
 
-parse.h
+parse.h (old)
 ------------------------------------------
 a small text parsing header
 
