@@ -209,7 +209,7 @@ struct RGBA : public RGB
     }
 
     template <typename T, size_t sz>
-    RGB(std::array<T, sz> &&args) { this->members = args; }
+    RGBA(std::array<T, sz> &&args) { this->members = args; }
 
     RGBA(uint_fast8_t R, uint_fast8_t G, uint_fast8_t B, uint_fast8_t A) : RGB(R, G, B)
     {
