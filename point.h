@@ -13,7 +13,7 @@ protected:
 
 public:
     Point() = default;
-    Point(std::array<T, sz>&& args)
+    Point(const std::array<T, sz>&& args)
     {
         members = args;
     }
