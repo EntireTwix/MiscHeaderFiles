@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include "MiscHeaderFiles-master/point.h"
 #include "atomic_queue.h"
