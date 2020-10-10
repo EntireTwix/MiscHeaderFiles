@@ -1,6 +1,7 @@
 compression.h
 ------------------------------------------
-an implementation of huffman coding
+an implementation of huffman coding, was
+an pretty early commit, not intended for use
 
 generics.h
 ------------------------------------------
