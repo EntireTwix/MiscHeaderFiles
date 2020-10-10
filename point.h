@@ -118,44 +118,44 @@ public:
 
 //Vec
 template <typename T, size_t sz>
-struct Vec : public Point<T, sz>
+struct UnsafeVec : public Point<T, sz>
 {
-    Vec() = default;
-    Vec(std::array<T, sz> &&args)
+    UnsafeVec() = default;
+    UnsafeVec(std::array<T, sz> &&args)
     {
         this->members = args;
     }
 
-    Vec<T, sz> operator+(const Vec<T, sz> &p) const
+    UnsafeVec<T, sz> operator+(const UnsafeVec<T, sz> &p) const
     {
-        Vec<T, sz> res;
+        UnsafeVec<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] + p.members[i];
         }
         return res;
     }
-    Vec<T, sz> operator-(const Vec<T, sz> &p) const
+    UnsafeVec<T, sz> operator-(const UnsafeVec<T, sz> &p) const
     {
-        Vec<T, sz> res;
+        UnsafeVec<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] - p.members[i];
         }
         return res;
     }
-    Vec<T, sz> operator*(const Vec<T, sz> &p) const
+    UnsafeVec<T, sz> operator*(const UnsafeVec<T, sz> &p) const
     {
-        Vec<T, sz> res;
+        UnsafeVec<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] * p.members[i];
         }
         return res;
     }
-    Vec<T, sz> operator/(const Vec<T, sz> &p) const
+    UnsafeVec<T, sz> operator/(const UnsafeVec<T, sz> &p) const
     {
-        Vec<T, sz> res;
+        UnsafeVec<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
             res.members[i] = this->members[i] / p.members[i];
@@ -166,7 +166,11 @@ struct Vec : public Point<T, sz>
 
 //SafeVec
 template <typename T, size_t sz>
-requires ArithmeticOperators<T> using SafeVec = Vec<T, sz>;
+requires ArithmeticOperators<T> using SafeVec = UnsafeVec<T, sz>;
+
+//Vec
+template <typename T, size_t sz>
+using Vec = SafeVec<T, sz>;
 
 //Vec2
 template <typename T>
@@ -177,7 +181,7 @@ template <typename T>
 using Vec3 = SafeVec<T, 3>;
 
 //RGB
-struct RGB : public Vec<uint_fast8_t, 3>
+struct RGB : public UnsafeVec<uint_fast8_t, 3>
 {
     RGB()
     {
