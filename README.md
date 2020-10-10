@@ -16,6 +16,10 @@ element re-seeding random func with current
 index and then setting random value as fast 
 as possible.
 
+log.h
+------------------------------------------
+a small logger for debugging and such
+
 mat.h
 ------------------------------------------
 a matrix data structure used for ML, Matrix 
@@ -34,13 +38,6 @@ point.h
 a data structure for points of varrying length
 and type
 
-tpool.h
-------------------------------------------
-a light, performance focused thread pool used
-in the matrix challenge for example. It
-should be noted that each thread has its own queue 
-and its lock based
-
 stpool.h
 ------------------------------------------
 a thread pool similiar to tpool except it has
@@ -48,3 +45,10 @@ one shared queue, this should be faster for
 programs that have poorly distributed jobs in
 terms of workload consitency. This thread pool 
 is also lock less
+
+tpool.h
+------------------------------------------
+a light, performance focused thread pool used
+in the matrix challenge for example. It
+should be noted that each thread has its own queue 
+and its lock based
