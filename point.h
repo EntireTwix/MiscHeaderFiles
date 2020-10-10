@@ -55,21 +55,21 @@ public:
         return os << ')';
     }
 
-    Point ApplyFunc(std::function<T(T)> Func)
+    std::array<T, sz> Transform(std::function<T(const T &)> Func)
     {
-        Point<T, sz> res;
+        std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
-            res.members[i] = Func(members[i]);
+            res[i] = Func(members[i]);
         }
         return res;
     }
-    Point ApplyFunc(std::function<T(T, T)> Func, const Point<T, sz> &p)
+    std::array<T, sz> Transform(std::function<T(const T &, const T &)> Func, const std::array<T, sz> &p)
     {
-        Point<T, sz> res;
+        std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
-            res.members[i] = Func(members[i], p.members[i]);
+            res[i] = Func(members[i], p[i]);
         }
         return res;
     }
@@ -82,21 +82,21 @@ public:
     }
 
     //cord variants
-    Point ApplyFunc(std::function<T(T, size_t)> Func)
+    std::array<T, sz> Transform(std::function<T(const T &, size_t)> Func)
     {
-        Point<T, sz> res;
+        std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
-            res.members[i] = Func(members[i], i);
+            res[i] = Func(members[i], i);
         }
         return res;
     }
-    Point ApplyFunc(std::function<T(T, T, size_t)> Func, const Point<T, sz> &p)
+    std::array<T, sz> Transform(std::function<T(const T &, const T &, size_t)> Func, const std::array<T, sz> &p)
     {
-        Point<T, sz> res;
+        std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
-            res.members[i] = Func(members[i], p.members[i], i);
+            res[i] = Func(members[i], p[i], i);
         }
         return res;
     }
@@ -126,39 +126,39 @@ struct UnsafeVec : public Point<T, sz>
         this->members = args;
     }
 
-    UnsafeVec<T, sz> operator+(const UnsafeVec<T, sz> &p) const
+    std::array<T, sz> operator+(const UnsafeVec<T, sz> &p) const
     {
-        UnsafeVec<T, sz> res;
+        std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
-            res.members[i] = this->members[i] + p.members[i];
+            res[i] = this->members[i] + p[i];
         }
         return res;
     }
-    UnsafeVec<T, sz> operator-(const UnsafeVec<T, sz> &p) const
+    std::array<T, sz> operator-(const UnsafeVec<T, sz> &p) const
     {
-        UnsafeVec<T, sz> res;
+        std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
-            res.members[i] = this->members[i] - p.members[i];
+            res[i] = this->members[i] - p[i];
         }
         return res;
     }
     UnsafeVec<T, sz> operator*(const UnsafeVec<T, sz> &p) const
     {
-        UnsafeVec<T, sz> res;
+        std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
-            res.members[i] = this->members[i] * p.members[i];
+            res[i] = this->members[i] * p[i];
         }
         return res;
     }
     UnsafeVec<T, sz> operator/(const UnsafeVec<T, sz> &p) const
     {
-        UnsafeVec<T, sz> res;
+        std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
         {
-            res.members[i] = this->members[i] / p.members[i];
+            res[i] = this->members[i] / p[i];
         }
         return res;
     }
@@ -168,31 +168,19 @@ struct UnsafeVec : public Point<T, sz>
 template <typename T, size_t sz>
 requires ArithmeticOperators<T> using SafeVec = UnsafeVec<T, sz>;
 
-//Vec
-template <typename T, size_t sz>
-using Vec = SafeVec<T, sz>;
-
-//Vec2
-template <typename T>
-using Vec2 = SafeVec<T, 2>;
-
-//Vec3
-template <typename T>
-using Vec3 = SafeVec<T, 3>;
-
 //RGB
 struct RGB : public UnsafeVec<uint_fast8_t, 3>
 {
     RGB()
     {
-        r() = g() = b() = 0;
+        members[0] = members[1] = members[2] = 0;
     }
 
-    RGB(uint8_t R, uint8_t G, uint8_t B)
+    RGB(uint_fast8_t R, uint_fast8_t G, uint_fast8_t B)
     {
-        r() = R;
-        g() = G;
-        b() = B;
+        members[0] = R;
+        members[1] = G;
+        members[2] = B;
     }
 
     uint_fast8_t &r() { return members[0]; }
@@ -205,7 +193,7 @@ struct RGB : public UnsafeVec<uint_fast8_t, 3>
 
     friend std::ostream &operator<<(std::ostream &os, const RGB &p)
     {
-        return os << '(' << (int)p.r() << ", " << (int)p.g() << ", " << (int)p.b() << ')';
+        return os << '(' << (int)p.members[0] << ", " << (int)p.members[1] << ", " << (int)p.members[2] << ')';
     }
 };
 
@@ -214,12 +202,12 @@ struct RGBA : public RGB
 {
     RGBA()
     {
-        r() = g() = b() = a() = 0;
+        members[0] = members[1] = members[2] = members[3] = 0;
     }
 
-    RGBA(uint8_t R, uint8_t G, uint8_t B, uint8_t A) : RGB(R, G, B)
+    RGBA(uint_fast8_t R, uint_fast8_t G, uint_fast8_t B, uint_fast8_t A) : RGB(R, G, B)
     {
-        a() = A;
+        members[3] = A;
     }
 
     uint_fast8_t &a() { return members[3]; }
@@ -228,9 +216,18 @@ struct RGBA : public RGB
 
     friend std::ostream &operator<<(std::ostream &os, const RGBA &p)
     {
-        return os << '(' << (int)p.r() << ", " << (int)p.g() << ", " << (int)p.b() << ", " << (int)p.a() << ')';
+        return os << '(' << (int)p.members[0] << ", " << (int)p.members[1] << ", " << (int)p.members[2] << ", " << (int)p.members[3] << ')';
     }
 };
+
+template <typename T, size_t sz>
+using Vec = SafeVec<T, sz>;
+
+template <typename T>
+using Vec2 = SafeVec<T, 2>;
+
+template <typename T>
+using Vec3 = SafeVec<T, 3>;
 
 using Point2i = Vec2<int>;
 using Point3i = Vec3<int>;
