@@ -13,10 +13,7 @@ protected:
 
 public:
     Point() = default;
-    Point(const std::array<T, sz> &&args)
-    {
-        members = args;
-    }
+    Point(const std::array<T, sz> &&args) : members(args) {}
 
     T &operator[](size_t index)
     {
