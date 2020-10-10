@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "MiscHeaderFiles-master/point.h"
+#include "point.h"
 #include "atomic_queue.h"
 
 #define ts std::to_string
