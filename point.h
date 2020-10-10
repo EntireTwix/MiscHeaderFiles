@@ -121,7 +121,10 @@ template <typename T, size_t sz>
 struct Vec : public Point<T, sz>
 {
     Vec() = default;
-    Vec(const std::array<T, sz>&& args) : this->members(args) {}
+    Vec(const std::array<T, sz> &&args)
+    {
+        this->members = args;
+    }
 
     Vec<T, sz> operator+(const Vec<T, sz> &p) const
     {
