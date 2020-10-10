@@ -121,10 +121,7 @@ template <typename T, size_t sz>
 struct Vec : public Point<T, sz>
 {
     Vec() = default;
-    Vec(std::array<T, sz> args)
-    {
-        this->members = args;
-    }
+    Vec(const std::array<T, sz>&& args) : this->members(args) {}
 
     Vec<T, sz> operator+(const Vec<T, sz> &p) const
     {
@@ -206,29 +203,20 @@ struct RGB : public Vec<uint_fast8_t, 3>
 };
 
 //RGBA
-struct RGBA : public Vec<uint8_t, 4>
+struct RGBA : public RGB
 {
     RGBA()
     {
         r() = g() = b() = a() = 0;
     }
 
-    RGBA(uint8_t R, uint8_t G, uint8_t B, uint8_t A)
+    RGBA(uint8_t R, uint8_t G, uint8_t B, uint8_t A) : RGB(R, G, B)
     {
-        r() = R;
-        g() = G;
-        b() = B;
         a() = A;
     }
 
-    uint_fast8_t &r() { return members[0]; }
-    uint_fast8_t &g() { return members[1]; }
-    uint_fast8_t &b() { return members[2]; }
     uint_fast8_t &a() { return members[3]; }
 
-    uint_fast8_t r() const { return members[0]; }
-    uint_fast8_t g() const { return members[1]; }
-    uint_fast8_t b() const { return members[2]; }
     uint_fast8_t a() const { return members[3]; }
 
     friend std::ostream &operator<<(std::ostream &os, const RGBA &p)
