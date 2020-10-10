@@ -1,5 +1,6 @@
 #pragma once
 #include "generics.h"
+#include <stdexcept>      
 #include <functional>
 #include <array>
 
