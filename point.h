@@ -123,7 +123,7 @@ struct Vec : public Point<T, sz>
     Vec() = default;
     Vec(std::array<T, sz> args)
     {
-        members = args;
+        this->members = args;
     }
 
     Vec<T, sz> operator+(const Vec<T, sz> &p) const
