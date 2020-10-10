@@ -176,6 +176,9 @@ struct RGB : public UnsafeVec<uint_fast8_t, 3>
         members[0] = members[1] = members[2] = 0;
     }
 
+    template <typename T, size_t sz>
+    RGB(std::array<T, sz> &&args) { this->members = args; }
+
     RGB(uint_fast8_t R, uint_fast8_t G, uint_fast8_t B)
     {
         members[0] = R;
@@ -204,6 +207,9 @@ struct RGBA : public RGB
     {
         members[0] = members[1] = members[2] = members[3] = 0;
     }
+
+    template <typename T, size_t sz>
+    RGB(std::array<T, sz> &&args) { this->members = args; }
 
     RGBA(uint_fast8_t R, uint_fast8_t G, uint_fast8_t B, uint_fast8_t A) : RGB(R, G, B)
     {
