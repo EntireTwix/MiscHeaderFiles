@@ -1,3 +1,4 @@
+#pragma once
 #include "generics.h"
 #include <functional>
 #include <array>
