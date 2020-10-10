@@ -13,7 +13,7 @@ protected:
 
 public:
     Point() = default;
-    Point(const std::array<T, sz> &&args) : members(args) {}
+    Point(std::array<T, sz> &&args) : members(args) {}
 
     T &operator[](size_t index)
     {
@@ -121,7 +121,7 @@ template <typename T, size_t sz>
 struct Vec : public Point<T, sz>
 {
     Vec() = default;
-    Vec(const std::array<T, sz> &&args)
+    Vec(std::array<T, sz> &&args)
     {
         this->members = args;
     }
