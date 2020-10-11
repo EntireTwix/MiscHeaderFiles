@@ -172,9 +172,10 @@ template <typename Type>
 inline Mat<Type>::Mat(size_t w, size_t h, std::initializer_list<Type> arr) : sizeX(w), sizeY(h)
 {
     members = new Type[w * h];
+    auto* arrptr = arr.begin();
     for (size_t i = 0; i < arr.size(); ++i)
     {
-        members[i] = *(arr.begin() + i);
+        members[i] = *(arrptr++);
     }
 }
 
