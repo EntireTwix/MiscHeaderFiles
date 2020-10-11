@@ -55,7 +55,7 @@ public:
         return os << ')';
     }
 
-    std::array<T, sz> Transform(std::function<T(const T &)> Func)
+    std::array<T, sz> Transform(std::function<T(const T &)> Func) const
     {
         std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
@@ -64,7 +64,7 @@ public:
         }
         return res;
     }
-    std::array<T, sz> Transform(std::function<T(const T &, const T &)> Func, const std::array<T, sz> &p)
+    std::array<T, sz> Transform(std::function<T(const T &, const T &)> Func, const std::array<T, sz> &p) const
     {
         std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
@@ -82,7 +82,7 @@ public:
     }
 
     //cord variants
-    std::array<T, sz> Transform(std::function<T(const T &, size_t)> Func)
+    std::array<T, sz> Transform(std::function<T(const T &, size_t)> Func) const
     {
         std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
@@ -91,7 +91,7 @@ public:
         }
         return res;
     }
-    std::array<T, sz> Transform(std::function<T(const T &, const T &, size_t)> Func, const std::array<T, sz> &p)
+    std::array<T, sz> Transform(std::function<T(const T &, const T &, size_t)> Func, const std::array<T, sz> &p) const
     {
         std::array<T, sz> res;
         for (size_t i = 0; i < sz; ++i)
