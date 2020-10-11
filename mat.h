@@ -13,7 +13,9 @@ private:
 public:
     Mat() = default;
     explicit Mat(size_t x, size_t y);
-    explicit Mat(size_t w, size_t h, std::initializer_list<Type> membs);
+
+    template <typename... Params>
+    explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h), members{membs...} { static_assert(sizeof...(membs) == (w * h)); }
     Mat(const Mat &mat);
     Mat(Mat &&mat);
     Mat operator=(const Mat &mat);
@@ -165,18 +167,6 @@ template <typename Type>
 inline Mat<Type>::Mat(size_t x, size_t y) : sizeX(x), sizeY(y)
 {
     members = new Type[sizeX * sizeY]{Type()};
-}
-
-//this constructor is unsafe and slow, is meant for loading from save
-template <typename Type>
-inline Mat<Type>::Mat(size_t w, size_t h, std::initializer_list<Type> arr) : sizeX(w), sizeY(h)
-{
-    members = new Type[w * h];
-    auto* arrptr = arr.begin();
-    for (size_t i = 0; i < arr.size(); ++i)
-    {
-        members[i] = *(arrptr++);
-    }
 }
 
 template <typename Type>
