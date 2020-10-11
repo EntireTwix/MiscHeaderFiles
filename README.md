@@ -20,7 +20,7 @@ log.h (incomplete)
 ------------------------------------------
 a small logger for debugging and such
 
-mat.h
+mat.h (may be refactored)
 ------------------------------------------
 a matrix data structure used for ML, Matrix 
 competition and anything else thatll need it.
