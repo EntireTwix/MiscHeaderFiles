@@ -198,23 +198,29 @@ struct RGB : public UnsafeVec<uint_fast8_t, 3>
 };
 
 //RGBA
-struct RGBA : public RGB
+struct RGBA : public UnsafeVec<uint_fast8_t, 4>
 {
     RGBA()
     {
-        members[0] = members[1] = members[2] = members[3] = 0;
+        members[0] = members[1] = members[2] = 0;
     }
 
     RGBA(std::array<uint_fast8_t, 4> &&args) { this->members = args; }
 
-    RGBA(uint_fast8_t R, uint_fast8_t G, uint_fast8_t B, uint_fast8_t A) : RGB(R, G, B)
+    RGBA(uint_fast8_t R, uint_fast8_t G, uint_fast8_t B)
     {
-        members[3] = A;
+        members[0] = R;
+        members[1] = G;
+        members[2] = B;
     }
 
-    uint_fast8_t &a() { return members[3]; }
+    uint_fast8_t &r() { return members[0]; }
+    uint_fast8_t &g() { return members[1]; }
+    uint_fast8_t &b() { return members[2]; }
 
-    uint_fast8_t a() const { return members[3]; }
+    uint_fast8_t r() const { return members[0]; }
+    uint_fast8_t g() const { return members[1]; }
+    uint_fast8_t b() const { return members[2]; }
 
     friend std::ostream &operator<<(std::ostream &os, const RGBA &p)
     {
