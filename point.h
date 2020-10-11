@@ -13,7 +13,8 @@ protected:
 
 public:
     Point() = default;
-    Point(std::array<T, sz> &&args) : members(args) {}
+    template <typename... Params>
+    Point(Params &&... args) : members{args...} { static_assert(sizeof...(args) == sz, "args initilizing point must be the same size"); }
 
     T &operator[](size_t index)
     {
@@ -119,10 +120,9 @@ template <typename T, size_t sz>
 struct UnsafeVec : public Point<T, sz>
 {
     UnsafeVec() = default;
-    UnsafeVec(std::array<T, sz> &&args)
-    {
-        this->members = args;
-    }
+
+    template <typename... Params>
+    UnsafeVec(Params &&... args) : Point<T, sz>(args...) {}
 
     std::array<T, sz> operator+(const UnsafeVec<T, sz> &p) const
     {
@@ -174,7 +174,8 @@ struct RGB : public UnsafeVec<uint_fast8_t, 3>
         members[0] = members[1] = members[2] = 0;
     }
 
-    RGB(std::array<uint_fast8_t, 3> &&args) { this->members = args; }
+    template <typename... Params>
+    RGB(Params &&... args) : UnsafeVec<uint_fast8_t, 3>(args...) {}
 
     RGB(uint_fast8_t R, uint_fast8_t G, uint_fast8_t B)
     {
@@ -205,7 +206,8 @@ struct RGBA : public UnsafeVec<uint_fast8_t, 4>
         members[0] = members[1] = members[2] = 0;
     }
 
-    RGBA(std::array<uint_fast8_t, 4> &&args) { this->members = args; }
+    template <typename... Params>
+    RGBA(Params &&... args) : UnsafeVec<uint_fast8_t, 4>(args...) {}
 
     RGBA(uint_fast8_t R, uint_fast8_t G, uint_fast8_t B)
     {
