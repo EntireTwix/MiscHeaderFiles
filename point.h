@@ -9,7 +9,7 @@ template <typename T, size_t sz>
 requires EqualityComparable<T> class Point
 {
 protected:
-    T members[sz];
+    std::array<T, sz> members;
 
 public:
     Point() = default;
