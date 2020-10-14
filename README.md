@@ -44,11 +44,12 @@ a thread pool similiar to tpool except it has
 one shared queue, this should be faster for 
 programs that have poorly distributed jobs in
 terms of workload consitency. This thread pool 
-is also lock less
+is also lock less. 18% slower then tpool.h if load
+is evenly distributed (synthetic)
 
-tpool.h
+tpool.h 
 ------------------------------------------
 a light, performance focused thread pool used
 in the matrix challenge for example. It
 should be noted that each thread has its own queue 
-and its lock based
+and its lock based.
