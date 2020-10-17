@@ -1,7 +1,7 @@
 #pragma once
 #include <stdexcept>
+#include <assert.h>
 #include <ostream>
-#include <functional>
 
 template <typename Type = float>
 class Mat
@@ -15,7 +15,12 @@ public:
     explicit Mat(size_t x, size_t y);
 
     template <typename... Params>
-    explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h), members{membs...} { static_assert(sizeof...(membs) == (w * h)); }
+    explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h)
+    {
+        members = new Type[w * h]{membs...};
+        assert(sizeof...(membs) == (w * h));
+    }
+
     Mat(const Mat &mat);
     Mat(Mat &&mat);
     Mat operator=(const Mat &mat);
@@ -101,11 +106,11 @@ public:
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
-                    res.members[i][j] = Func(this->members[i][j], j, i);
+                    res.At(j, i) = Func(this->At(j, i), j, i);
                 }
                 else
                 {
-                    res.members[i][j] = Func(this->members[i][j]);
+                    res.At(j, i) = Func(this->At(j, i));
                 }
             }
         }
@@ -121,11 +126,11 @@ public:
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
-                    res.members[i][j] = Func(this->members[i][j], mat.members[i][j], j, i);
+                    res.At(j, i) = Func(this->At(j, i), mat.At(j, i), j, i);
                 }
                 else
                 {
-                    res.members[i][j] = Func(this->members[i][j], mat.members[i][j]);
+                    res.At(j, i) = Func(this->At(j, i), mat.At(j, i));
                 }
             }
         }
@@ -142,11 +147,11 @@ public:
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
-                    Func(this->members[i][j], j, i);
+                    Func(this->At(j, i), j, i);
                 }
                 else
                 {
-                    Func(this->members[i][j]);
+                    Func(this->At(j, i));
                 }
             }
         }
@@ -160,11 +165,11 @@ public:
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
-                    Func(this->members[i][j], mat.members[i][j], j, i);
+                    Func(this->members[i][j], mat.At(j, i), j, i);
                 }
                 else
                 {
-                    Func(this->members[i][j], mat.members[i][j]);
+                    Func(this->members[i][j], mat.At(j, i));
                 }
             }
         }
