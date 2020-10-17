@@ -197,7 +197,6 @@ inline Mat<Type>::Mat(Mat<Type> &&mat)
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
     members = std::move(mat.members);
-    mat.members = nullptr;
 }
 
 template <typename Type>
@@ -218,7 +217,6 @@ inline Mat<Type> Mat<Type>::operator=(Mat<Type> &&mat)
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
     members = std::move(mat.members);
-    mat.members = nullptr;
     return *this;
 }
 
