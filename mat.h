@@ -1,6 +1,7 @@
 #pragma once
 #include <stdexcept>
 #include <assert.h>
+#include <string>
 #include <ostream>
 
 template <typename Type = float>
@@ -96,8 +97,8 @@ public:
     }
 
     //Transform functions
-    template <bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const auto &Func) const
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    Mat Transform(const Function &Func) const
     {
         Mat res;
         for (size_t i = 0; i < SizeY(); ++i)
@@ -116,8 +117,8 @@ public:
         }
         return res;
     }
-    template <bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const auto &Func, const Mat &mat) const
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    Mat Transform(const Function &Func, const Mat &mat) const
     {
         Mat res;
         for (size_t i = 0; i < SizeY(); ++i)
@@ -138,8 +139,8 @@ public:
     }
 
     //ApplyFunction function
-    template <bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const auto &Func)
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    void ApplyFunction(const Function &Func)
     {
         for (size_t i = 0; i < SizeY(); ++i)
         {
@@ -156,8 +157,8 @@ public:
             }
         }
     }
-    template <bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const auto &Func, const Mat &mat)
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    void ApplyFunction(const Function &Func, const Mat &mat)
     {
         for (size_t i = 0; i < SizeY(); ++i)
         {
@@ -202,6 +203,7 @@ inline Mat<Type>::Mat(Mat<Type> &&mat)
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
     members = std::move(mat.members);
+    mat.members = nullptr;
 }
 
 template <typename Type>
@@ -222,6 +224,7 @@ inline Mat<Type> Mat<Type>::operator=(Mat<Type> &&mat)
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
     members = std::move(mat.members);
+    mat.members = nullptr;
     return *this;
 }
 
