@@ -9,7 +9,7 @@ class Mat
 {
 private:
     Type *members = nullptr;
-    size_t sizeX = 0, sizeY = 0;
+    size_t sizeY = 0, sizeX = 0;
 
 public:
     Mat() = default;
@@ -18,8 +18,8 @@ public:
     template <typename... Params>
     explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h)
     {
-        members = new Type[w * h]{membs...};
         assert(sizeof...(membs) == (w * h));
+        members = new Type[w * h]{membs...};
     }
 
     Mat(const Mat &mat);
@@ -100,10 +100,10 @@ public:
     template <typename Function, bool CORDS_PARAMS_FLAG = false>
     Mat Transform(const Function &Func) const
     {
-        Mat res;
-        for (size_t i = 0; i < SizeY(); ++i)
+        Mat res(sizeX, sizeY);
+        for (size_t i = 0; i < sizeY; ++i)
         {
-            for (size_t j = 0; j < SizeX(); ++j)
+            for (size_t j = 0; j < sizeX; ++j)
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
@@ -120,10 +120,10 @@ public:
     template <typename Function, bool CORDS_PARAMS_FLAG = false>
     Mat Transform(const Function &Func, const Mat &mat) const
     {
-        Mat res;
-        for (size_t i = 0; i < SizeY(); ++i)
+        Mat res(sizeX, sizeY);
+        for (size_t i = 0; i < sizeY; ++i)
         {
-            for (size_t j = 0; j < SizeX(); ++j)
+            for (size_t j = 0; j < sizeX; ++j)
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
@@ -142,9 +142,9 @@ public:
     template <typename Function, bool CORDS_PARAMS_FLAG = false>
     void ApplyFunction(const Function &Func)
     {
-        for (size_t i = 0; i < SizeY(); ++i)
+        for (size_t i = 0; i < sizeY; ++i)
         {
-            for (size_t j = 0; j < SizeX(); ++j)
+            for (size_t j = 0; j < sizeX; ++j)
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
@@ -160,9 +160,9 @@ public:
     template <typename Function, bool CORDS_PARAMS_FLAG = false>
     void ApplyFunction(const Function &Func, const Mat &mat)
     {
-        for (size_t i = 0; i < SizeY(); ++i)
+        for (size_t i = 0; i < sizeY; ++i)
         {
-            for (size_t j = 0; j < SizeX(); ++j)
+            for (size_t j = 0; j < sizeX; ++j)
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
@@ -190,7 +190,7 @@ inline Mat<Type>::Mat(const Mat<Type> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = new Type[sizeX * sizeY];
+    members = new Type[sizeX * sizeY]{Type()};
 
     for (size_t i = 0; i < sizeY; ++i)
         for (size_t j = 0; j < sizeX; ++j)
@@ -202,8 +202,9 @@ inline Mat<Type>::Mat(Mat<Type> &&mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = std::move(mat.members);
+    members = mat.members;
     mat.members = nullptr;
+    mat.sizeX = mat.sizeY = 0;
 }
 
 template <typename Type>
@@ -223,8 +224,9 @@ inline Mat<Type> Mat<Type>::operator=(Mat<Type> &&mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = std::move(mat.members);
+    members = mat.members;
     mat.members = nullptr;
+    mat.sizeX = mat.sizeY = 0;
     return *this;
 }
 
