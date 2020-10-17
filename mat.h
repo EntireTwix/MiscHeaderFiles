@@ -92,12 +92,12 @@ public:
 
     //Transform functions
     template <bool CORDS_PARAMS_FLAG = false>
-    constexpr FastMat Transform(const auto &Func) const
+    Mat Transform(const auto &Func) const
     {
         Mat res;
-        for (size_t i = 0; i < H; ++i)
+        for (size_t i = 0; i < SizeY(); ++i)
         {
-            for (size_t j = 0; j < W; ++j)
+            for (size_t j = 0; j < SizeX(); ++j)
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
@@ -112,12 +112,12 @@ public:
         return res;
     }
     template <bool CORDS_PARAMS_FLAG = false>
-    constexpr FastMat Transform(const auto &Func, const Mat &mat) const
+    Mat Transform(const auto &Func, const Mat &mat) const
     {
         Mat res;
-        for (size_t i = 0; i < H; ++i)
+        for (size_t i = 0; i < SizeY(); ++i)
         {
-            for (size_t j = 0; j < W; ++j)
+            for (size_t j = 0; j < SizeX(); ++j)
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
@@ -134,11 +134,11 @@ public:
 
     //ApplyFunction function
     template <bool CORDS_PARAMS_FLAG = false>
-    constexpr void ApplyFunction(const auto &Func)
+    void ApplyFunction(const auto &Func)
     {
-        for (size_t i = 0; i < H; ++i)
+        for (size_t i = 0; i < SizeY(); ++i)
         {
-            for (size_t j = 0; j < W; ++j)
+            for (size_t j = 0; j < SizeX(); ++j)
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
@@ -152,11 +152,11 @@ public:
         }
     }
     template <bool CORDS_PARAMS_FLAG = false>
-    constexpr void ApplyFunction(const auto &Func, const Mat &mat)
+    void ApplyFunction(const auto &Func, const Mat &mat)
     {
-        for (size_t i = 0; i < H; ++i)
+        for (size_t i = 0; i < SizeY(); ++i)
         {
-            for (size_t j = 0; j < W; ++j)
+            for (size_t j = 0; j < SizeX(); ++j)
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
