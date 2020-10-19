@@ -1,6 +1,5 @@
 #pragma once
 #include <stdexcept>
-#include <assert.h>
 #include <string>
 #include <ostream>
 
