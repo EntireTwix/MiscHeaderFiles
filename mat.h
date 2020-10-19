@@ -18,7 +18,8 @@ public:
     template <typename... Params>
     explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h)
     {
-        assert(sizeof...(membs) == (w * h));
+        if (sizeof...(membs) != (w * h))
+            throw std::invalid_argument("dimensions of matrix must match number of values");
         members = new Type[w * h]{membs...};
     }
 
@@ -39,7 +40,6 @@ public:
     Mat VecMult(const Mat &mat) const;
     Mat DoubleVecMult(const Mat &mat) const;
     Mat Transpose() const;
-    Mat CompoundingVecMult(const Mat &mat) const;
 
     Mat operator+(const Mat &mat) const;
     Mat operator-(const Mat &mat) const;
@@ -66,28 +66,14 @@ public:
         return os;
     }
 
-    std::string ToString() const
-    {
-        std::string res;
-        for (size_t i = 0; i < SizeY(); ++i)
-        {
-            for (size_t j = 0; j < SizeX(); ++j)
-            {
-                res += std::to_string(At(j, i)) + ' ';
-            }
-            res += '\n';
-        }
-        return res;
-    }
-
     std::string Save() const
     {
         std::string res = "";
         res += std::to_string(sizeX) + ' ' + std::to_string(sizeY) + " {";
-        for (Type *start = &members[0]; start != &members[sizeX * sizeY]; ++start)
+        for (Type *start = begin(); start != end(); ++start)
         {
             res += std::to_string(*start);
-            if (start != &members[sizeX * sizeY] - 1)
+            if (start != end() - 1)
             {
                 res += ", ";
             }
@@ -193,8 +179,12 @@ inline Mat<Type>::Mat(const Mat<Type> &mat)
     members = new Type[sizeX * sizeY]{Type()};
 
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             At(j, i) = mat.At(j, i);
+        }
+    }
 }
 
 template <typename Type>
@@ -214,8 +204,12 @@ inline Mat<Type> Mat<Type>::operator=(const Mat<Type> &mat)
     sizeY = mat.sizeY;
     members = new Type[sizeX * sizeY];
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             At(j, i) = mat.At(j, i);
+        }
+    }
     return *this;
 }
 
@@ -282,7 +276,8 @@ inline Mat<Type> Mat<Type>::Dot(const Mat<Type> &mat) const
 
     Mat res(mat.sizeX, sizeY); //product dimensions are the x of both mats
     Type amount;
-    for (size_t i = 0; i < sizeY; ++i)         //for each y on the A matrix
+    for (size_t i = 0; i < sizeY; ++i) //for each y on the A matrix
+    {
         for (size_t j = 0; j < mat.sizeX; ++j) //for each x on the B matrix
         {
             amount = 0;
@@ -290,6 +285,7 @@ inline Mat<Type> Mat<Type>::Dot(const Mat<Type> &mat) const
                 amount += At(k, i) * mat.At(j, k);
             res.At(j, i) = amount;
         }
+    }
     return res;
 }
 
@@ -300,8 +296,12 @@ inline Mat<Type> Mat<Type>::VecMult(const Mat<Type> &mat) const
     if (mat.sizeX != sizeY)
         throw std::invalid_argument("sizeX of the argument must meet the sizeY of the calling object");
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             res.At(j, i) = At(j, i) * mat.At(i, 0);
+        }
+    }
     return res;
 }
 
@@ -311,9 +311,13 @@ inline Mat<Type> Mat<Type>::DoubleVecMult(const Mat<Type> &mat) const
     Mat res(sizeX, mat.sizeX);
     if (mat.sizeY != sizeY)
         throw std::invalid_argument("sizeY of both must be 1");
-    for (size_t i = 0; i < mat.sizeX; ++i)
+    for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             res.At(j, i) = At(j, 0) * mat.At(i, 0);
+        }
+    }
     return res;
 }
 
@@ -322,8 +326,12 @@ inline Mat<Type> Mat<Type>::Transpose() const
 {
     Mat res(sizeY, sizeX);
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             res.At(i, j) = At(j, i);
+        }
+    }
     return res;
 }
 
@@ -334,8 +342,12 @@ inline Mat<Type> Mat<Type>::operator+(const Mat<Type> &mat) const
         throw std::invalid_argument("operator+: parameter must match the dimensions of this");
     Mat res(SizeX(), SizeY());
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             res.At(j, i) = At(j, i) + mat.At(j, i);
+        }
+    }
     return res;
 }
 
@@ -346,8 +358,12 @@ inline Mat<Type> Mat<Type>::operator-(const Mat<Type> &mat) const
         throw std::invalid_argument("operator-: parameter must match the dimensions of this");
     Mat res(SizeX(), SizeY());
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             res.At(j, i) = At(j, i) - mat.At(j, i);
+        }
+    }
     return res;
 }
 
@@ -358,8 +374,12 @@ inline Mat<Type> Mat<Type>::operator*(const Mat<Type> &mat) const
         throw std::invalid_argument("operator*: parameter must match the dimensions of this");
     Mat res(SizeX(), SizeY());
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             res.At(j, i) = At(j, i) * mat.At(j, i);
+        }
+    }
     return res;
 }
 
@@ -370,8 +390,12 @@ inline Mat<Type> Mat<Type>::operator/(const Mat<Type> &mat) const
         throw std::invalid_argument("operator*: parameter must match the dimensions of this");
     Mat res(SizeX(), SizeY());
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             res.At(j, i) = At(j, i) * mat.At(j, i);
+        }
+    }
     return res;
 }
 
@@ -380,3 +404,7 @@ inline Mat<Type>::~Mat()
 {
     delete[] members;
 }
+
+using fMat = Mat<float>;
+using dMat = Mat<double>;
+using iMat = Mat<int>;
