@@ -67,8 +67,8 @@ public:
 
     std::string Save() const
     {
-        std::string res = "";
-        res += std::to_string(sizeX) + ' ' + std::to_string(sizeY) + " {";
+        std::string res = "(";
+        res += std::to_string(sizeX) + ',' + std::to_string(sizeY) + ", {";
         for (Type *start = begin(); start != end(); ++start)
         {
             res += std::to_string(*start);
@@ -77,7 +77,7 @@ public:
                 res += ", ";
             }
         }
-        res += "};";
+        res += "});";
         return res;
     }
 
