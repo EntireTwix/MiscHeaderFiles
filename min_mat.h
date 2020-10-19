@@ -1,19 +1,28 @@
 #pragma once
 #include <stdexcept>
+#include <assert.h>
+#include <string>
 #include <ostream>
-#include <functional>
 
 template <typename Type = float>
 class Mat
 {
 private:
     Type *members = nullptr;
-    size_t sizeX = 0, sizeY = 0;
+    size_t sizeY = 0, sizeX = 0;
 
 public:
     Mat() = default;
     explicit Mat(size_t x, size_t y);
-    explicit Mat(size_t w, size_t h, std::initializer_list<Type> membs);
+
+    template <typename... Params>
+    explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h)
+    {
+        if (sizeof...(membs) != (w * h))
+            throw std::invalid_argument("dimensions of matrix must match number of values");
+        members = new Type[w * h]{membs...};
+    }
+
     Mat(const Mat &mat);
     Mat(Mat &&mat);
     Mat operator=(const Mat &mat);
@@ -35,18 +44,95 @@ public:
         return &members[sizeX * sizeY];
     }
 
-    std::string ToString() const
+    friend std::ostream &operator<<(std::ostream &os, const Mat &mat)
     {
-        std::string res;
-        for (size_t i = 0; i < SizeY(); ++i)
+        for (size_t i = 0; i < mat.SizeY(); ++i)
         {
-            for (size_t j = 0; j < SizeX(); ++j)
+            for (size_t j = 0; j < mat.SizeX(); ++j)
+                os << mat.At(j, i) << ' ';
+            os << '\n';
+        }
+        return os;
+    }
+
+    //Transform functions
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    Mat Transform(const Function &Func) const
+    {
+        Mat res(sizeX, sizeY);
+        for (size_t i = 0; i < sizeY; ++i)
+        {
+            for (size_t j = 0; j < sizeX; ++j)
             {
-                res += std::to_string(At(j, i)) + ' ';
+                if constexpr (CORDS_PARAMS_FLAG)
+                {
+                    res.At(j, i) = Func(this->At(j, i), j, i);
+                }
+                else
+                {
+                    res.At(j, i) = Func(this->At(j, i));
+                }
             }
-            res += '\n';
         }
         return res;
+    }
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    Mat Transform(const Function &Func, const Mat &mat) const
+    {
+        Mat res(sizeX, sizeY);
+        for (size_t i = 0; i < sizeY; ++i)
+        {
+            for (size_t j = 0; j < sizeX; ++j)
+            {
+                if constexpr (CORDS_PARAMS_FLAG)
+                {
+                    res.At(j, i) = Func(this->At(j, i), mat.At(j, i), j, i);
+                }
+                else
+                {
+                    res.At(j, i) = Func(this->At(j, i), mat.At(j, i));
+                }
+            }
+        }
+        return res;
+    }
+
+    //ApplyFunction function
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    void ApplyFunction(const Function &Func)
+    {
+        for (size_t i = 0; i < sizeY; ++i)
+        {
+            for (size_t j = 0; j < sizeX; ++j)
+            {
+                if constexpr (CORDS_PARAMS_FLAG)
+                {
+                    Func(this->At(j, i), j, i);
+                }
+                else
+                {
+                    Func(this->At(j, i));
+                }
+            }
+        }
+    }
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    void ApplyFunction(const Function &Func, const Mat &mat)
+    {
+        for (size_t i = 0; i < sizeY; ++i)
+        {
+            for (size_t j = 0; j < sizeX; ++j)
+            {
+                if constexpr (CORDS_PARAMS_FLAG)
+                {
+                    Func(this->members[i][j], mat.At(j, i), j, i);
+                }
+                else
+                {
+                    Func(this->members[i][j], mat.At(j, i));
+                }
+            }
+        }
     }
 
     ~Mat();
@@ -58,27 +144,20 @@ inline Mat<Type>::Mat(size_t x, size_t y) : sizeX(x), sizeY(y)
     members = new Type[sizeX * sizeY]{Type()};
 }
 
-//this constructor is unsafe and slow, is meant for loading from save
-template <typename Type>
-inline Mat<Type>::Mat(size_t w, size_t h, std::initializer_list<Type> arr) : sizeX(w), sizeY(h)
-{
-    members = new float[w * h];
-    for (size_t i = 0; i < arr.size(); ++i)
-    {
-        members[i] = *(arr.begin() + i);
-    }
-}
-
 template <typename Type>
 inline Mat<Type>::Mat(const Mat<Type> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = new Type[sizeX * sizeY];
+    members = new Type[sizeX * sizeY]{Type()};
 
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             At(j, i) = mat.At(j, i);
+        }
+    }
 }
 
 template <typename Type>
@@ -86,8 +165,9 @@ inline Mat<Type>::Mat(Mat<Type> &&mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = std::move(mat.members);
+    members = mat.members;
     mat.members = nullptr;
+    mat.sizeX = mat.sizeY = 0;
 }
 
 template <typename Type>
@@ -97,8 +177,12 @@ inline Mat<Type> Mat<Type>::operator=(const Mat<Type> &mat)
     sizeY = mat.sizeY;
     members = new Type[sizeX * sizeY];
     for (size_t i = 0; i < sizeY; ++i)
+    {
         for (size_t j = 0; j < sizeX; ++j)
+        {
             At(j, i) = mat.At(j, i);
+        }
+    }
     return *this;
 }
 
@@ -107,8 +191,9 @@ inline Mat<Type> Mat<Type>::operator=(Mat<Type> &&mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = std::move(mat.members);
+    members = mat.members;
     mat.members = nullptr;
+    mat.sizeX = mat.sizeY = 0;
     return *this;
 }
 
@@ -118,6 +203,14 @@ inline Type &Mat<Type>::At(size_t x, size_t y) //indexing matrix
     if ((x >= sizeX) || (y >= sizeY))
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
     return members[(y * sizeX) + x];
+}
+
+template <typename Type>
+inline Type *Mat<Type>::AtP(size_t x, size_t y)
+{
+    if ((x >= sizeX) || (y >= sizeY))
+        throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
+    return &members[(y * sizeX) + x];
 }
 
 template <typename Type>
@@ -151,3 +244,7 @@ inline Mat<Type>::~Mat()
 {
     delete[] members;
 }
+
+using fMat = Mat<float>;
+using dMat = Mat<double>;
+using iMat = Mat<int>;
