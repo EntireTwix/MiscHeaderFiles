@@ -11,6 +11,8 @@ private:
     size_t sizeY = 0, sizeX = 0;
 
 public:
+    using type = Type;
+
     Mat() = default;
     explicit Mat(size_t x, size_t y);
 
@@ -59,7 +61,9 @@ public:
         for (size_t i = 0; i < mat.SizeY(); ++i)
         {
             for (size_t j = 0; j < mat.SizeX(); ++j)
+            {
                 os << mat.At(j, i) << ' ';
+            }
             os << '\n';
         }
         return os;
@@ -68,16 +72,17 @@ public:
     std::string Save() const
     {
         std::string res = "(";
-        res += std::to_string(sizeX) + ',' + std::to_string(sizeY) + ", {";
-        for (Type *start = begin(); start != end(); ++start)
+        res += std::to_string(sizeX) + ',' + std::to_string(sizeY) + ',';
+        for (size_t i = 0; i < SizeY(); ++i)
         {
-            res += std::to_string(*start);
-            if (start != end() - 1)
+            for (size_t j = 0; j < SizeX(); ++j)
             {
-                res += ", ";
+                res += std::to_string(this->At(j, i)) + ',';
             }
         }
-        res += "});";
+        //removing last ,
+        res.resize(res.size() - 1);
+        res += ");";
         return res;
     }
 
