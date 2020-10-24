@@ -23,11 +23,7 @@ a small logger for debugging and such
 mat.h
 ------------------------------------------
 a matrix data structure used for ML, Matrix 
-competition and anything else thatll need it.
-
-min_mat.h
-------------------------------------------
-a light version of mat.h for simpler usecases
+competition and anything else that'll need it.
 
 parse.h (old)
 ------------------------------------------
