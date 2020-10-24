@@ -1,4 +1,4 @@
-compression.h (old)
+compression.h (not intended for use)
 ------------------------------------------
 an implementation of huffman coding, was
 an pretty early commit, not intended for use
@@ -7,7 +7,7 @@ generics.h
 ------------------------------------------
 messing around with concepts feature added in C++20
 
-MatrixChallenge.cpp (niche)
+MatrixChallenge.cpp (just a challenge)
 ------------------------------------------
 an arbitray competition with friends,
 the task being to iterate through an array
