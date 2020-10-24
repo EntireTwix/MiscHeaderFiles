@@ -13,7 +13,17 @@ private:
     void Set(size_t x, size_t y, Type head, auto &&... rest)
     {
         members[y][x] = head;
-        Set((x * (x != sizeX)) + (x != sizeX), y + (x == sizeX), rest...);
+        if (x == sizeX - 1)
+        {
+            x = 0;
+            ++y;
+        }
+        else
+        {
+            ++x;
+        }
+
+        Set(x, y, rest...);
     }
     void Set(size_t x, size_t y, Type value)
     {
@@ -27,7 +37,7 @@ public:
     explicit Mat(size_t x, size_t y);
     explicit Mat(size_t w, size_t h, auto &&... args) : sizeX(w), sizeY(h)
     {
-        if (sizeof...(args) - 1 != (w * h))
+        if (sizeof...(args) != (w * h))
             throw std::invalid_argument("dimensions of matrix must match number of values");
         members = new Type *[h];
         for (size_t i = 0; i < h; ++i)
