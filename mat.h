@@ -397,6 +397,10 @@ inline Mat<Type> Mat<Type>::operator/(const Mat<Type> &mat) const
 template <typename Type>
 inline Mat<Type>::~Mat()
 {
+    for (size_t i = 0; i < sizeY; ++i)
+    {
+        delete[] members[i];
+    }
     delete[] members;
 }
 
