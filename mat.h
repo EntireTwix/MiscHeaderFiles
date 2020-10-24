@@ -38,8 +38,6 @@ public:
     size_t Area() const;
 
     Mat Dot(const Mat &mat) const;
-    Mat VecMult(const Mat &mat) const;
-    Mat DoubleVecMult(const Mat &mat) const;
     Mat Transpose() const;
 
     Mat operator+(const Mat &mat) const;
@@ -274,9 +272,9 @@ template <typename Type>
 inline Mat<Type> Mat<Type>::Dot(const Mat<Type> &mat) const
 {
     if (sizeY != 1)
-        throw std::invalid_argument("input must be a vector for weight layer");
+        throw std::invalid_argument("Dot: internal must be a vector");
     if (sizeX != mat.sizeY)
-        throw std::invalid_argument("y of input must equal x of weight");
+        throw std::invalid_argument("Dot: length of vector internal must match height of mat arg");
 
     Mat res(mat.sizeX, sizeY); //product dimensions are the x of both mats
     Type amount;
@@ -288,38 +286,6 @@ inline Mat<Type> Mat<Type>::Dot(const Mat<Type> &mat) const
             for (int k = 0; k < sizeX; ++k) //is equivelant to mat.sizeY()
                 amount += At(k, i) * mat.At(j, k);
             res.At(j, i) = amount;
-        }
-    }
-    return res;
-}
-
-template <typename Type>
-inline Mat<Type> Mat<Type>::VecMult(const Mat<Type> &mat) const
-{
-    Mat res(sizeX, sizeY);
-    if (mat.sizeX != sizeY)
-        throw std::invalid_argument("sizeX of the argument must meet the sizeY of the calling object");
-    for (size_t i = 0; i < sizeY; ++i)
-    {
-        for (size_t j = 0; j < sizeX; ++j)
-        {
-            res.At(j, i) = At(j, i) * mat.At(i, 0);
-        }
-    }
-    return res;
-}
-
-template <typename Type>
-inline Mat<Type> Mat<Type>::DoubleVecMult(const Mat<Type> &mat) const
-{
-    Mat res(sizeX, mat.sizeX);
-    if (mat.sizeY != sizeY)
-        throw std::invalid_argument("sizeY of both must be 1");
-    for (size_t i = 0; i < sizeY; ++i)
-    {
-        for (size_t j = 0; j < sizeX; ++j)
-        {
-            res.At(j, i) = At(j, 0) * mat.At(i, 0);
         }
     }
     return res;
