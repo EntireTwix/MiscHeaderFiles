@@ -13,13 +13,7 @@ protected:
 
 public:
     Point() = default;
-    Point(const std::array<T, sz> &arr)
-    {
-        for (size_t i = 0; i < sz; ++i)
-        {
-            this->members[i] = arr[i];
-        }
-    }
+    Point(const std::array<T, sz> &arr) : members(arr) {}
     explicit Point(auto head, auto &&... args) : members{head, args...} { static_assert(sizeof...(args) + 1 == sz, "args initilizing point must be the same size"); }
 
     T &operator[](size_t index)
