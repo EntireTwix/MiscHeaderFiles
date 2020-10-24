@@ -13,14 +13,7 @@ private:
     void Set(size_t x, size_t y, Type head, auto &&... rest)
     {
         members[y][x] = head;
-        if (x == sizeX)
-        {
-            Set(0, y + 1, rest...);
-        }
-        else
-        {
-            Set(x + 1, y, rest...);
-        }
+        Set((x * (x != sizeX)) + (x != sizeX), y + (x == sizeX), rest...);
     }
     void Set(size_t x, size_t y, Type value)
     {
