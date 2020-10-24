@@ -7,21 +7,41 @@ template <typename Type = float>
 class Mat
 {
 private:
-    Type *members = nullptr;
+    Type **members = nullptr;
     size_t sizeY = 0, sizeX = 0;
+
+    void Set(size_t x, size_t y, Type head, auto &&... rest)
+    {
+        members[y][x] = head;
+        if (x == sizeX)
+        {
+            Set(0, y + 1, rest...);
+        }
+        else
+        {
+            Set(x + 1, y, rest...);
+        }
+    }
+    void Set(size_t x, size_t y, Type value)
+    {
+        members[y][x] = value;
+    }
 
 public:
     using type = Type;
 
     Mat() = default;
     explicit Mat(size_t x, size_t y);
-
-    template <typename... Params>
-    explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h)
+    explicit Mat(size_t w, size_t h, auto &&... args) : sizeX(w), sizeY(h)
     {
-        if (sizeof...(membs) != (w * h))
+        if (sizeof...(args) - 1 != (w * h))
             throw std::invalid_argument("dimensions of matrix must match number of values");
-        members = new Type[w * h]{membs...};
+        members = new Type *[h];
+        for (size_t i = 0; i < h; ++i)
+        {
+            members[i] = new Type[w];
+        }
+        Set(0, 0, args...);
     }
 
     Mat(const Mat &mat);
@@ -47,11 +67,11 @@ public:
 
     Type *begin()
     {
-        return &members[0];
+        return &members[0][0];
     }
     Type *end()
     {
-        return &members[sizeX * sizeY];
+        return &members[sizeY][sizeY];
     }
 
     friend std::ostream &operator<<(std::ostream &os, const Mat &mat)
@@ -170,7 +190,11 @@ public:
 template <typename Type>
 inline Mat<Type>::Mat(size_t x, size_t y) : sizeX(x), sizeY(y)
 {
-    members = new Type[sizeX * sizeY]{Type()};
+    members = new Type *[sizeY];
+    for (size_t i = 0; i < sizeY; ++i)
+    {
+        members[i] = new Type[sizeX]{Type()};
+    }
 }
 
 template <typename Type>
@@ -178,8 +202,11 @@ inline Mat<Type>::Mat(const Mat<Type> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = new Type[sizeX * sizeY]{Type()};
-
+    members = new Type *[sizeY];
+    for (size_t i = 0; i < sizeY; ++i)
+    {
+        members[i] = new Type[sizeX]{Type()};
+    }
     for (size_t i = 0; i < sizeY; ++i)
     {
         for (size_t j = 0; j < sizeX; ++j)
@@ -204,7 +231,11 @@ inline Mat<Type> Mat<Type>::operator=(const Mat<Type> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    members = new Type[sizeX * sizeY];
+    members = new Type *[sizeY];
+    for (size_t i = 0; i < sizeY; ++i)
+    {
+        members[i] = new Type[sizeX];
+    }
     for (size_t i = 0; i < sizeY; ++i)
     {
         for (size_t j = 0; j < sizeX; ++j)
@@ -231,7 +262,7 @@ inline Type &Mat<Type>::At(size_t x, size_t y) //indexing matrix
 {
     if ((x >= sizeX) || (y >= sizeY))
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
-    return members[(y * sizeX) + x];
+    return members[y][x];
 }
 
 template <typename Type>
@@ -239,7 +270,7 @@ inline Type *Mat<Type>::AtP(size_t x, size_t y)
 {
     if ((x >= sizeX) || (y >= sizeY))
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
-    return &members[(y * sizeX) + x];
+    return &members[y][x];
 }
 
 template <typename Type>
@@ -247,7 +278,7 @@ inline Type Mat<Type>::At(size_t x, size_t y) const //indexing matrix
 {
     if ((x >= sizeX) || (y >= sizeY))
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
-    return members[(y * sizeX) + x];
+    return members[y][x];
 }
 
 template <typename Type>
@@ -357,7 +388,7 @@ template <typename Type>
 inline Mat<Type> Mat<Type>::operator/(const Mat<Type> &mat) const
 {
     if ((mat.SizeX() != SizeX()) || (mat.SizeY() != SizeY()))
-        throw std::invalid_argument("operator*: parameter must match the dimensions of this");
+        throw std::invalid_argument("operator/: parameter must match the dimensions of this");
     Mat res(SizeX(), SizeY());
     for (size_t i = 0; i < sizeY; ++i)
     {
