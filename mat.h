@@ -65,15 +65,6 @@ public:
     Mat operator*(const Mat &mat) const;
     Mat operator/(const Mat &mat) const;
 
-    Type *begin()
-    {
-        return &members[0][0];
-    }
-    Type *end()
-    {
-        return &members[sizeY][sizeY];
-    }
-
     friend std::ostream &operator<<(std::ostream &os, const Mat &mat)
     {
         for (size_t i = 0; i < mat.SizeY(); ++i)
