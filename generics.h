@@ -74,4 +74,7 @@ concept RelationalOperators = requires(T a, T b)
 };
 
 template <typename T>
-concept Number = std::convertible_to<T, int>;
+concept Number = std::is_integral<T>::value || std::is_floating_point<T>::value;
+
+template <typename T>
+concept Integral = std::is_integral<T>::value;
