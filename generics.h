@@ -78,3 +78,6 @@ concept Number = std::is_integral<T>::value || std::is_floating_point<T>::value;
 
 template <typename T>
 concept Integral = std::is_integral<T>::value;
+
+template <typename T>
+concept Float = std::is_floating_point<T>::value;
