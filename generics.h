@@ -74,10 +74,10 @@ concept RelationalOperators = requires(T a, T b)
 };
 
 template <typename T>
-concept Number = std::is_integral<T>::value || std::is_floating_point<T>::value;
+concept Number = std::is_integral_v<T> || std::is_floating_point_v<T>;
 
 template <typename T>
-concept Integral = std::is_integral<T>::value;
+concept Integral = std::is_integral_v<T>;
 
 template <typename T>
-concept Float = std::is_floating_point<T>::value;
+concept SizeType = std::is_unsigned_v<T> &&std::is_integral_v<T>;
