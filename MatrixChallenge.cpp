@@ -4,8 +4,8 @@
 #include <chrono>
 #include <iomanip>
 #include <immintrin.h>
-#include "tpool.h"
-#include "mat.h"
+#include <tpool.hpp>
+#include <mat.hpp>
 
 using namespace std::chrono;
 
