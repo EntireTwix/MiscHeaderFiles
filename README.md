@@ -15,6 +15,7 @@ the task being to iterate through an array
 element re-seeding random func with current 
 index and then setting random value as fast 
 as possible.
+https://docs.google.com/spreadsheets/d/1kKpvWvlE1gb3vMHmYo3caG5J6-Ixmc_Sq3QuMLstkqA/edit?usp=sharing
 
 log.h (incomplete)
 ------------------------------------------
