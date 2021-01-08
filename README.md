@@ -35,3 +35,4 @@ utils.hpp
 a collection of utility functions, currently include
 * ReadFileSimple
 * Split
+* CombineBits
