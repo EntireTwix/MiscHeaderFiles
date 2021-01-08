@@ -4,6 +4,18 @@
 #include <fstream>
 #include <vector>
 
+template <typename T>
+auto CombineBits(T val)
+{
+        return val;
+}
+
+template <typename T, typename... Bits>
+auto CombineBits(T head, Bits... vars)
+{
+        return (head << sizeof(T)) + CombineBits(vars...);
+}
+
 inline std::vector<std::string> ReadFileSimple(const std::string &file, char delim)
 {
     std::ifstream temp(file);
