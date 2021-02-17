@@ -1,85 +1,21 @@
 #include <iostream>
-#include <windows.h>
-#include <random>
 #include <chrono>
 #include <iomanip>
-#include <immintrin.h>
-#include <tpool.hpp>
-#include <mat.hpp>
+#include "mat.hpp"
+#include "tpool.hpp"
 
 using namespace std::chrono;
 
-uint32_t TimeNow = system_clock::now().time_since_epoch().count(); // Fastest way to get epoch time
-
-//returns 4x 64bit random values
-void Random64(unsigned char *pAt, __m256i &timeValues, const __m256i &constantValues, __m256i &res)
-{
-
-    for (int i = 0; i < 4; ++i)
-    {
-        timeValues[i] = (system_clock::now().time_since_epoch().count() - TimeNow); //4 x 64 bit values
-    }
-
-    res = _mm256_mul_epi32(timeValues, constantValues);
-    for (int i = 0; i < 4; ++i)
-    {
-        pAt[i] = res[i] % 256;
-    }
-}
+static uint32_t TimeNow = system_clock::now().time_since_epoch().count(); // Fastest way to get epoch time
 
 int main()
 {
-    std::cout << "input threads\n";
-    int inp;
-    std::cin >> inp;
-    auto logical_cores = inp;
-    auto size = 10000;
-    auto increment = size / logical_cores;
-    auto overflow = size % logical_cores;
-
-    ThreadPool pool;
-    double sum = 0;
-
-    Mat<uint_fast8_t> a(size, size);
-
-    __m256i c = _mm256_set1_epi64x(48271);
-
-    for (int z = 0; z < 100; ++z)
-    {
-        pool.Pause();
-        high_resolution_clock::time_point TimePointStart = high_resolution_clock::now();
-        for (size_t i = 0; i < size - overflow; i += increment)
-        {
-            pool.AddTask([&a, i, c, increment, size]() {
-                __m256i t, r;
-
-                for (size_t j = 0; j < size; ++j)
-                {
-                    for (size_t k = i; k < i + increment; k += 4)
-                    {
-                        Random64(a.AtP(k, j), t, c, r);
-                    }
-                }
-                //std::cout<<"finished "<<i<<'\n';
-            });
-        }
-        high_resolution_clock::time_point TimePointEnd = high_resolution_clock::now();
-        std::cout << pool.Jobs() << " start jobs\n";
-
-        //std::cout << "Thread Task Compilation Time done: " << duration_cast<duration<double>>(TimePointEnd - TimePointStart).count() << '\n';
-        TimePointStart = high_resolution_clock::now();
-        pool.Start();
-        while (pool.Jobs())
-        {
-        }
-        TimePointEnd = high_resolution_clock::now();
-        std::cout << pool.Jobs() << " end jobs\n";
-
-        std::cout << std::setprecision(5) << std::fixed << "Runtime done: " << duration_cast<duration<double>>(TimePointEnd - TimePointStart).count() << "\n\n";
-        sum += duration_cast<duration<double>>(TimePointEnd - TimePointStart).count();
-        //std::cout << a;
-    }
-    std::cout << (sum / 100) * -1 << '\n';
-    std::cin.get();
+    static ThreadPool engine;
+    static Mat<uint_fast8_t> data(10000, 10000);
+    high_resolution_clock::time_point TimePointStart = high_resolution_clock::now();
+    asyncfor_each(
+        data.begin(), data.end(), [](uint_fast8_t &x) { x = ((system_clock::now().time_since_epoch().count() - TimeNow) * 48271) % 256; }, engine);
+    high_resolution_clock::time_point TimePointEnd = high_resolution_clock::now();
+    std::cout << std::setprecision(5) << std::fixed << "Runtime done: " << duration_cast<duration<double>>(TimePointEnd - TimePointStart).count() << '\n';
     return 0;
 }
