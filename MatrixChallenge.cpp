@@ -4,7 +4,7 @@
 
 int main()
 {
-    static ThreadPool<8> engine;
+    static ThreadPool engine;
     static Mat<uint_fast8_t> data(10000, 10000);
     while (1)
     {
