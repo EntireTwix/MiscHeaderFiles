@@ -1,6 +1,12 @@
 #include <iostream>
+#include <ctime>
+#include <chrono>
 #include "mat.hpp"
 #include "tpool.hpp"
+
+using namespace std::chrono;
+
+uint32_t TimeNow = system_clock::now().time_since_epoch().count();
 
 int main()
 {
