@@ -16,4 +16,4 @@ struct copy_fast<T, true>
 };
 
 template <typename T>
-using copy_fast_t = copy_fast<T, std::is_trivially_copyable_v<T>>::value;
+using copy_fast_t = copy_fast<T, std::is_trivially_copyable_v<T>>::type;
