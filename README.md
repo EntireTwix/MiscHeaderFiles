@@ -29,10 +29,3 @@ point.h
 ------------------------------------------
 a data structure for points of varrying length
 and type
-
-utils.hpp
-------------------------------------------
-a collection of utility functions, currently include
-* ReadFileSimple
-* Split
-* CombineBits
