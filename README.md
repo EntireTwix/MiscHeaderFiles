@@ -25,7 +25,11 @@ parse.h (old)
 ------------------------------------------
 a small text parsing header
 
-point.h
+point.h (old)
 ------------------------------------------
 a data structure for points of varrying length
 and type
+
+parse.hpp
+------------------------------------------
+very simple file io functions
